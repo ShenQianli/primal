@@ -1,106 +1,143 @@
 #include "PSM/api.hpp"
 
-PLP *LinearProgrammingWrapper(
-	int *_m,	/*row num*/
-	int *_n,	/*col num*/
-	double *_A,	/* A of size m*n*/
-	double *_b,	/* b of size m*/
-	double *_b_bar,	/* b_bar of size m*/
-	double *_c,	/* c of size n*/
-	double *_c_bar	/* c_bar of size n*/
-){
-	int m = *_m;
-	int n = *_n;
-	MatrixXd A(m, n);
-	VectorXd b(m);
-	VectorXd b_bar(m);
-	VectorXd c(n);
-	VectorXd c_bar(n);
-	
-	for(int row = 0; row < m; ++row){
-		for(int col = 0; col < n; ++col){
-			A(row, col) = _A[row * n + col];
-		}
-	}
-	
-	for(int row = 0; row < m; ++row){
-		b(row) = _b[row];
-		b_bar(row) = _b_bar[row];
-	}
-	
-	for(int col = 0; col < n; ++col){
-		c(col) = _c[col];
-		c_bar(col) = _c_bar[col];
-	}
-	
-	return new PLP(A, b, b_bar, c, c_bar);
-}
-
-PLP *QuantileRegressionWrapper(
-	int *_n,	/*row num*/
-	int *_d,	/*col num*/
+extern "C" void QuantileRegression_api
+(	int *n,	/*row num*/
+	int *d,	/*col num*/
 	double *_X,
-	double *_y
-){
-	MatrixXd X(_n, _d);
-	VectorXd y(_n);
-	for(int row = 0; row < _n; ++row){
-		for(int col = 0; col < _d; ++col){
-			X(row, col) = _X[row * d + col];
+	double *_y,
+	int max_it,
+	double lambda_threshold,
+	int *T,
+	double *lambda_list,
+	double *x_list,
+	double *y_list
+ ){
+	MatrixXd XX(n, d);
+	VectorXd yy(n);
+	VectorXd x;
+	for(int row = 0; row < n; ++row){
+		for(int col = 0; col < d; ++col){
+			XX(row, col) = X[row * d + col];
 		}
-		y(row) = _y[row];
+		yy(row) = y[row];
 	}
-	return QuantileRegression(X, y);
+	PLP *p = QuantileRegression(X, y);
+	PSM psm(p);
+	PSMresult result = psm.solve(max_it, lambda_threshold);
+	x.resize(result.d);
+	for(int t = 0; t < T; ++t){
+		lambda_list[t] = result.lambda_list[t];
+		x = result.x_list.col(t);
+		for(int i = 0; i < d; ++i){
+			x_list[t*d+i] = x[i] - x[i+d];
+		}
+		y_list[t] = result.y_list[t];
+	}
 }
 
-PLP *SparseSVMWrapper(
-	int *_n,	/*row num*/
-	int *_d,	/*col num*/
+extern "C" void SparseSVM_api
+(	int *n,	/*row num*/
+	int *d,	/*col num*/
 	double *_X,
-	double *_y
-){
-	MatrixXd X(_n, _d);
-	VectorXd y(_n);
-	for(int row = 0; row < _n; ++row){
-		for(int col = 0; col < _d; ++col){
-			X(row, col) = _X[row * d + col];
+	double *_y,
+	int max_it,
+	double lambda_threshold,
+	int *T,
+	double *lambda_list,
+	double *x_list,
+	double *y_list,
+	double *x0
+ ){
+	MatrixXd XX(n, d);
+	VectorXd yy(n);
+	VectorXd x;
+	for(int row = 0; row < n; ++row){
+		for(int col = 0; col < d; ++col){
+			XX(row, col) = X[row * d + col];
 		}
-		y(row) = _y[row];
+		yy(row) = y[row];
 	}
-	return SparseSVM(X, y);
+	PLP *p = SparseSVM(X, y);
+	PSM psm(p);
+	PSMresult result = psm.solve(max_it, lambda_threshold);
+	x.resize(result.d);
+	for(int t = 0; t < T; ++t){
+		lambda_list[t] = result.lambda_list[t];
+		x = result.x_list.col(t);
+		for(int i = 0; i < d; ++i){
+			x_list[t*d+i] = x[2*n+i] - x[2*n+d+i];
+		}
+		y_list[t] = result.y_list[t];
+		x0[t] = x[2*n+2*d] - x[2*n+2*d+1];
+	}
 }
 
-PLP *DantzigWrapper(
-	int *_n,	/*row num*/
-	int *_d,	/*col num*/
-	double *_X,
-	double *_y
-){
-	MatrixXd X(_n, _d);
-	VectorXd y(_n);
-	for(int row = 0; row < _n; ++row){
-		for(int col = 0; col < _d; ++col){
-			X(row, col) = _X[row * d + col];
+extern "C" void Dantzig_api
+(	int *n,	/*row num*/
+ int *d,	/*col num*/
+ double *_X,
+ double *_y,
+ int max_it,
+ double lambda_threshold,
+ int *T,
+ double *lambda_list,
+ double *x_list,
+ double *y_list
+ ){
+	MatrixXd XX(n, d);
+	VectorXd yy(n);
+	VectorXd x;
+	for(int row = 0; row < n; ++row){
+		for(int col = 0; col < d; ++col){
+			XX(row, col) = X[row * d + col];
 		}
-		y(row) = _y[row];
+		yy(row) = y[row];
 	}
-	return Dantzig(X, y);
+	PLP *p = Dantzig(X, y);
+	PSM psm(p);
+	PSMresult result = psm.solve(max_it, lambda_threshold);
+	x.resize(result.d);
+	for(int t = 0; t < T; ++t){
+		lambda_list[t] = result.lambda_list[t];
+		x = result.x_list.col(t);
+		for(int i = 0; i < d; ++i){
+			x_list[t*d+i] = x[i] - x[i+d];
+		}
+		y_list[t] = result.y_list[t];
+	}
 }
 
-PLP *CompressedSensingWrapper(
-	int *_n,	/*row num*/
-	int *_d,	/*col num*/
-	double *_X,
-	double *_y
-){
-	MatrixXd X(_n, _d);
-	VectorXd y(_n);
-	for(int row = 0; row < _n; ++row){
-		for(int col = 0; col < _d; ++col){
-			X(row, col) = _X[row * d + col];
+extern "C" void CompressedSensing_api
+(	int *n,	/*row num*/
+ int *d,	/*col num*/
+ double *_X,
+ double *_y,
+ int max_it,
+ double lambda_threshold,
+ int *T,
+ double *lambda_list,
+ double *x_list,
+ double *y_list
+ ){
+	MatrixXd XX(n, d);
+	VectorXd yy(n);
+	VectorXd x;
+	for(int row = 0; row < n; ++row){
+		for(int col = 0; col < d; ++col){
+			XX(row, col) = X[row * d + col];
 		}
-		y(row) = _y[row];
+		yy(row) = y[row];
 	}
-	return CompressedSensing(X, y);
+	PLP *p = CompressedSensing(X, y);
+	PSM psm(p);
+	PSMresult result = psm.solve(max_it, lambda_threshold);
+	x.resize(result.d);
+	for(int t = 0; t < T; ++t){
+		lambda_list[t] = result.lambda_list[t];
+		x = result.x_list.col(t);
+		for(int i = 0; i < d; ++i){
+			x_list[t*d+i] = x[i] - x[i+d];
+		}
+		y_list[t] = result.y_list[t];
+	}
 }
-

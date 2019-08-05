@@ -4,44 +4,60 @@
 #include <Eigen/Dense>
 
 #include "PSM/PLP.hpp"
+#include "PSM/PSM.hpp"
 #include "PSM/problems.hpp"
 
-PLP *LinearProgrammingWrapper(
-	int *_m,	/*row num*/
-	int *_n,	/*col num*/
-	double *_A,	/* A of size m*n*/
-	double *_b,	/* b of size m*/
-	double *_b_bar,	/* b_bar of size m*/
-	double *_c,	/* c of size n*/
-	double *_c_bar	/* c_bar of size n*/
+extern "C" void QuantileRegression_api
+(	int *n,	/*row num*/
+	int *d,	/*col num*/
+	double *X,
+	double *y,
+ 	int max_it,
+ 	double lambda_threshold,
+	int *T,
+	double *lambda_list,
+	double *x_list,
+	double *y_list
 );
 
-PLP *QuantileRegressionWrapper(
-	int *_n,	/*row num*/
-	int *_d,	/*col num*/
-	double *_X,
-	double *_y
+extern "C" void SparseSVM_api
+(	int *n,	/*row num*/
+	int *d,	/*col num*/
+	double *X,
+	double *y,
+	int max_it,
+	double lambda_threshold,
+	int *T,
+	double *lambda_list,
+	double *x_list,
+	double *y_list,
+ 	double *x0
 );
 
-PLP *SparseSVMWrapper(
-	int *_n,	/*row num*/
-	int *_d,	/*col num*/
-	double *_X,
-	double *_y
+extern "C" void Dantzig_api
+(	int *n,	/*row num*/
+	int *d,	/*col num*/
+	double *X,
+	double *y,
+	int max_it,
+	double lambda_threshold,
+	int *T,
+	double *lambda_list,
+	double *x_list,
+	double *y_list
 );
 
-PLP *DantzigWrapper(
-	int *_n,	/*row num*/
-	int *_d,	/*col num*/
-	double *_X,
-	double *_y
-);
-
-PLP *CompressedSensingWrapper(
-	int *_n,	/*row num*/
-	int *_d,	/*col num*/
-	double *_X,
-	double *_y
+extern "C" void CompressedSensing_api
+(	int *n,	/*row num*/
+	int *d,	/*col num*/
+	double *X,
+	double *y,
+	int max_it,
+	double lambda_threshold,
+	int *T,
+	double *lambda_list,
+	double *x_list,
+	double *y_list
 );
 
 #endif
