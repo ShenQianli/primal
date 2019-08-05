@@ -36,7 +36,7 @@ public:
 		const VectorXd& _b_bar,	/*parameter*/
 		const VectorXd& _c,	/*parameter*/
 		const VectorXd& _c_bar	/*parameter*/
-	)
+	);
 };
 
 #endif

@@ -8,10 +8,10 @@
 #include "PSM/problems.hpp"
 
 extern "C" void QuantileRegression_api
-(	int *n,	/*row num*/
-	int *d,	/*col num*/
-	double *X,
-	double *y,
+(	int *_n,	/*row num*/
+	int *_d,	/*col num*/
+	double *_X,
+	double *_y,
  	int max_it,
  	double lambda_threshold,
 	int *T,
@@ -21,10 +21,10 @@ extern "C" void QuantileRegression_api
 );
 
 extern "C" void SparseSVM_api
-(	int *n,	/*row num*/
-	int *d,	/*col num*/
-	double *X,
-	double *y,
+(	int *_n,	/*row num*/
+	int *_d,	/*col num*/
+	double *_X,
+	double *_y,
 	int max_it,
 	double lambda_threshold,
 	int *T,
@@ -35,10 +35,10 @@ extern "C" void SparseSVM_api
 );
 
 extern "C" void Dantzig_api
-(	int *n,	/*row num*/
-	int *d,	/*col num*/
-	double *X,
-	double *y,
+(	int *_n,	/*row num*/
+	int *_d,	/*col num*/
+	double *_X,
+	double *_y,
 	int max_it,
 	double lambda_threshold,
 	int *T,
@@ -48,10 +48,10 @@ extern "C" void Dantzig_api
 );
 
 extern "C" void CompressedSensing_api
-(	int *n,	/*row num*/
-	int *d,	/*col num*/
-	double *X,
-	double *y,
+(	int *_n,	/*row num*/
+	int *_d,	/*col num*/
+	double *_X,
+	double *_y,
 	int max_it,
 	double lambda_threshold,
 	int *T,

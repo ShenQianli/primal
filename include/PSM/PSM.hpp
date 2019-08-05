@@ -25,7 +25,7 @@ public:
 	PSMresult(int max_it, int _d);
 	~PSMresult();
 	void update(double lambda, VectorXd x, double y);
-}
+};
 
 class PSM{
 public:
