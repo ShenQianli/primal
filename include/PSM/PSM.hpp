@@ -20,12 +20,12 @@ public:
 	int T;
 	int d;
 	double *lambda_list;
-	double *x_list;
+	MatrixXd x_list;
 	double *y_list;
 	PSMresult(int max_it, int _d);
 	~PSMresult();
 	void update(double lambda, VectorXd x, double y);
-};
+}
 
 class PSM{
 public:
