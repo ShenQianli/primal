@@ -7,21 +7,19 @@ bool iszero(double x){
 PSMresult::PSMresult(int max_it, int _d){
 	T = 0;
 	d = _d;
-	lambda_list = (double *)calloc(max_it, sizeof(double));
-	x_list = (double *)calloc(max_it * d, sizeof(double));
-	y_list = (double *)calloc(max_it, sizeof(double));
+	lambda_list = (double *)malloc(max_it * sizeof(double));
+	x_list.resize(d, max_it);
+	y_list = (double *)malloc(max_it * sizeof(double));
 }
 
 PSMresult::~PSMresult(){
 	free(lambda_list);
-	free(x_list);
 	free(y_list);
 }
 
 void PSMresult::update(double lambda, VectorXd x, double y){
 	lambda_list[T] = lambda;
-	for(int i = 0; i < d; ++i)
-		x_list[T*d+i] = x(i);
+	x_list.col(T) = x;
 	y_list[T] = y;
 	T++;
 }
