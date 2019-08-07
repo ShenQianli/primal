@@ -1,3 +1,0 @@
-/Users/shenqianli/Desktop/PSM/build/CMakeFiles/rebuild_cache.dir
-/Users/shenqianli/Desktop/PSM/build/CMakeFiles/edit_cache.dir
-/Users/shenqianli/Desktop/PSM/build/CMakeFiles/psm.dir
