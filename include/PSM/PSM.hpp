@@ -6,8 +6,6 @@
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 
-#include "PSM/PLP.hpp"
-
 #define EPS 1.0e-100
 
 using namespace std;
@@ -29,25 +27,30 @@ public:
 
 class PSM{
 public:
-	int m;
-	int n;
-	int M; /*M = m*/
-	int N; /*N = n+m*/
-	MatrixXd A; /* A of size M*N */
-	VectorXd b; /* b of size M*/
-	VectorXd b_bar; /* b_bar of size M*/
-	VectorXd c; /* c of size N*/
-	VectorXd c_bar; /* c_bar of size N*/
+	/*Parametric Linear Programming problem parameters*/
+	int M; /*row num*/
+	int N; /*col num*/
+	int m; /*m = M*/
+	int n; /*n = N-M*/
+	const MatrixXd& A; /* A of size M*N */
+	const VectorXd& b; /* b of size M*/
+	const VectorXd& b_bar; /* b_bar of size M*/
+	const VectorXd& c; /* c of size N*/
+	const VectorXd& c_bar; /* c_bar of size N*/
 	
-	int *B;    /*basic indices size of m*/
-	int *NB;    /*non-basic indices size of n-m*/
+	int *B;    /*basic indices size of M*/
+	int *NB;    /*non-basic indices size of N-M*/
 	int *inner_dict;
 	
 	VectorXd E_d;
 	MatrixXd Eta;
 	MatrixXd A_N_t;
 	
-	PSM(PLP *pPLP);
+	PSM(const MatrixXd& _A,
+		const VectorXd& _b,
+		const VectorXd& _b_bar,
+		const VectorXd& _c,
+		const VectorXd& _c_bar);
 	~PSM();
 	void init();
 	VectorXd lusolve_update_dxb(int col_in);

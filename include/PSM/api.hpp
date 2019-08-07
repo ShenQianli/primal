@@ -3,17 +3,17 @@
 
 #include <Eigen/Dense>
 
-#include "PSM/PLP.hpp"
 #include "PSM/PSM.hpp"
-#include "PSM/problems.hpp"
+
 
 extern "C" void QuantileRegression_api
-(	int *_n,	/*row num*/
-	int *_d,	/*col num*/
+(	int *_n,
+	int *_d,
 	double *_X,
 	double *_y,
- 	int max_it,
- 	double lambda_threshold,
+ 	double *_tau,
+ 	int *max_it,
+ 	double *lambda_threshold,
 	int *T,
 	double *lambda_list,
 	double *x_list,
@@ -21,26 +21,26 @@ extern "C" void QuantileRegression_api
 );
 
 extern "C" void SparseSVM_api
-(	int *_n,	/*row num*/
-	int *_d,	/*col num*/
+(	int *_n,
+	int *_d,
 	double *_X,
 	double *_y,
-	int max_it,
-	double lambda_threshold,
+	int *max_it,
+	double *lambda_threshold,
 	int *T,
 	double *lambda_list,
 	double *x_list,
 	double *y_list,
- 	double *x0
+ 	double *x0_list
 );
 
 extern "C" void Dantzig_api
-(	int *_n,	/*row num*/
-	int *_d,	/*col num*/
+(	int *_n,
+	int *_d,
 	double *_X,
 	double *_y,
-	int max_it,
-	double lambda_threshold,
+	int *max_it,
+	double *lambda_threshold,
 	int *T,
 	double *lambda_list,
 	double *x_list,
@@ -48,12 +48,12 @@ extern "C" void Dantzig_api
 );
 
 extern "C" void CompressedSensing_api
-(	int *_n,	/*row num*/
-	int *_d,	/*col num*/
+(	int *_n,
+	int *_d,
 	double *_X,
 	double *_y,
-	int max_it,
-	double lambda_threshold,
+	int *max_it,
+	double *lambda_threshold,
 	int *T,
 	double *lambda_list,
 	double *x_list,

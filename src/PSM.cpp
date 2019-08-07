@@ -24,16 +24,17 @@ void PSMresult::update(double lambda, VectorXd x, double y){
     T++;
 }
 
-PSM::PSM(PLP *pPLP){
-    m = pPLP->M;
-    n = pPLP->N - m;
-    M = m;
-    N = pPLP->N;
-    A = pPLP->A;
-    b = pPLP->b;
-    b_bar = pPLP->b_bar;
-    c = pPLP->c;
-    c_bar = pPLP->c_bar;
+PSM::PSM(const MatrixXd& _A,
+		 const VectorXd& _b,
+		 const VectorXd& _b_bar,
+		 const VectorXd& _c,
+		 const VectorXd& _c_bar
+		 ):A(_A),b(_b),b_bar(_b_bar),c(_c),c_bar(_c_bar){
+	
+    M = A.rows();
+	N = A.cols();
+	m = M;
+	n = N - M;
     inner_dict = (int *)malloc(N*sizeof(int));
     B = (int *)malloc(M*sizeof(int));
     NB = (int *)malloc(n*sizeof(int));
@@ -55,9 +56,9 @@ void PSM::init(){
         B[i] = i + n;
         inner_dict[i + n] = i;
     }
-    for(int i = 0; i < M; ++i){
-        B[i] = i + n;
-        inner_dict[i + n] = i;
+    for(int i = 0; i < n; ++i){
+        NB[i] = i;
+        inner_dict[i] = i;
     }
     E_d.setZero();
     Eta.setZero();
@@ -200,14 +201,15 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
     VectorXd zN_star(n);
     VectorXd zN_bar(n);
     VectorXd dzN(n);
-    VectorXd x_output(M);
+	VectorXd xB(M);
+    VectorXd x_output(N);
     double t;
     double t_bar;
     double s;
     double s_bar;
     double lambda_star;
     double y_output;
-    PSMresult result(max_it, m);
+    PSMresult result(max_it, N);
     
     /*initialize*/
     init();
@@ -218,7 +220,6 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
     
     while(T < max_it){
         T++;
-        
         /*compute lambda_star*/
         lambda_star = DBL_MIN;
         col_in = -1;
@@ -245,11 +246,6 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
                     flag = BASIC;
                 }
             }
-        }
-        
-        /*check threshold*/
-        if(lambda_star <= lambda_threshold){
-            break;
         }
         switch (flag) {
             case NONBASIC:
@@ -304,37 +300,43 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
                 break;
             }
         }
-        
-        /*Update the output result*/
-        x_output = xB_star + lambda_star * xB_bar;
-        y_output = x_output.transpose()*(c + lambda_star * c_bar);
-        result.update(lambda_star , x_output , y_output);
-        
+		
         /*Compute the dual and primal step lengths \
          for both variables and perturbations*/
         t = xB_star[inner_dict[col_out]] / dxB[inner_dict[col_out]];
         t_bar = xB_bar[inner_dict[col_out]] / dxB[inner_dict[col_out]];
         s = zN_star[inner_dict[col_in]] / dzN[inner_dict[col_in]];
         s_bar = zN_bar[inner_dict[col_in]] / dzN[inner_dict[col_in]];
-        
+		
         /*Update the primal and dual solutions*/
         xB_star = xB_star - t * dxB;
         xB_bar = xB_bar - t_bar * dxB;
         zN_star = zN_star - s * dzN;
         zN_bar = zN_bar - s_bar * dzN;
-        
+		
         zN_star(inner_dict[col_in]) = s;
         zN_bar(inner_dict[col_in]) = s_bar;
         xB_star(inner_dict[col_out]) = t;
         xB_bar(inner_dict[col_out]) = t_bar;
-        
+		
         /*Update the basic and nonbasic index sets*/
         A_N_t.row(inner_dict[col_in])=A.col(col_out);
         B[inner_dict[col_out]] = col_in;
         NB[inner_dict[col_in]] = col_out;
         swap(inner_dict[col_in], inner_dict[col_out]);
-        
-        
+		
+		/*Update the output result*/
+		xB = xB_star + lambda_star * xB_bar;
+		x_output.setZero();
+		for(int i = 0; i < M; ++i){
+			x_output[B[i]] = xB[i];
+		}
+		y_output = x_output.transpose()*(c + lambda_star * c_bar);
+		result.update(lambda_star , x_output, y_output);
+		/*check threshold*/
+		if(lambda_star <= lambda_threshold){
+			break;
+		}
     }
     /*reset*/
     lusolve_update_dxb(-1);
