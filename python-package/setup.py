@@ -23,6 +23,8 @@ elif sys.platform == 'darwin':
     libcand_path = libcand_path + [os.path.join(p, 'libpsm.dylib') for p in libdir_candidate]
 
 lib_path = [p for p in libcand_path if os.path.exists(p) and os.path.isfile(p)]
+if not os.path.exists('./pypsm/lib/'):
+	os.mkdir('./pypsm/lib/')
 for lib_file in lib_path:
     shutil.copy(lib_file,os.path.join(CURRENT_DIR, './pypsm/lib/'))
 
@@ -42,10 +44,13 @@ else:
 VERSION_PATH = os.path.join(CURRENT_DIR, 'pypsm/VERSION')
 
 setup(name='pypsm',
+	  author = 'Qianli Shen',
+	  author_email = 'shenqianli@pku.edu.cn',
       version=open(VERSION_PATH).read().strip(),
       description="psm Python Package",
       install_requires=[
           'numpy',
       ],
       packages=find_packages(),
+	  include_package_data=True,
       )
