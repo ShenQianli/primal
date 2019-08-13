@@ -4,9 +4,19 @@ import numpy as np
 import ctypes
 from numpy.ctypeslib import ndpointer
 
-from core import psm
+from .core import psm
+from .libpath import find_lib_path
 
-_PSM_LIB = ctypes.cdll.LoadLibrary("/Users/shenqianli/Desktop/PSM/lib/libpsm.dylib")
+__all__ = ["QuantileRegression", "SparseSVM", "Dantzig", "CompressedSensing"]
+
+def _load_lib():
+	"""Load library."""
+	lib_path = find_lib_path()
+	lib = ctypes.cdll.LoadLibrary(lib_path[0])
+	return lib
+
+# _PSM_LIB = ctypes.cdll.LoadLibrary("/Users/shenqianli/Desktop/PSM/lib/libpsm.dylib")
+_PSM_LIB = _load_lib()
 
 class QuantileRegression(psm):
     """docstring for QuantileRegression"""

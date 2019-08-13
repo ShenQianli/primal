@@ -55,6 +55,9 @@ class psm(object):
                 self.result['theta_list'], self.result['target_list'])
             time_end = time.time()
             self.result['T'] = self.result['T'][0]
+            for key in self.result.keys():
+                if key.endswith('_list'):
+                    self.result[key] = self.result[key][:self.result['T']] 
             self.result['time'] = time_end - time_start
 
         return wrapper
@@ -75,10 +78,6 @@ class psm(object):
 
         self.trainer()  #self.trainer constructed in child class
         self.result['state'] = 'trained'
-        self.result['T'] = self.result['T'][0]
-        for key in self.result.keys():
-            if key.endswith('_list'):
-                self.result[key] = self.result[key][:T] 
 
     def coef(self):
         '''
