@@ -1,0 +1,9 @@
+
+
+export(CompressedSensing_solver)
+export(QuantileRegression_solver)
+export(Dantzig_solver)
+export(Dantzig_generator)
+export(SparseSVM_solver)
+export(plot.primal)
+useDynLib(PRIMAL, .registration = TRUE)

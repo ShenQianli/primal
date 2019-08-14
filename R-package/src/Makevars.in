@@ -1,0 +1,6 @@
+# package root
+PKGROOT=../../
+ENABLE_STD_THREAD=0
+
+PKG_CPPFLAGS= -march=native -O3 -funroll-loops -msse2 -std=c++11 -I$(PKGROOT)/include -I$(PKGROOT) 
+OBJECTS= $(PKGROOT)/src/api.o $(PKGROOT)/src/PSM.o 
