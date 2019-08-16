@@ -1,17 +1,18 @@
 #ifndef PSM_H
 #define PSM_H
 
+#include <iostream>
 #include <cstring>  /* malloc calloc memset*/
 #include <cfloat>	/* DBL_MAX DBL_MIN */
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 
-#define EPS 1.0e-100
+#define EPS 1e-10
 
 using namespace std;
 using namespace Eigen;
 
-enum FLAGTYPE{NONE, BASIC, NONBASIC};
+enum FLAGTYPE{NONE, PRIMAL, DUAL};
 
 class PSMresult{
 public:

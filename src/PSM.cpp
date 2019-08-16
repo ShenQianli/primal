@@ -1,9 +1,5 @@
 #include "PSM/PSM.hpp"
 
-bool iszero(double x){
-    return x > -EPS && x < EPS;
-}
-
 PSMresult::PSMresult(int max_it, int _d){
     T = 0;
     d = _d;
@@ -34,9 +30,9 @@ PSM::PSM(const MatrixXd& _A,
     M = A.rows();
 	N = A.cols();
 	m = M;
-	n = N - M;
+	n = N - m;
     inner_dict = (int *)malloc(N*sizeof(int));
-    B = (int *)malloc(M*sizeof(int));
+    B = (int *)malloc(m*sizeof(int));
     NB = (int *)malloc(n*sizeof(int));
     E_d.resize(m);
     Eta.resize(m,m);
@@ -50,9 +46,9 @@ PSM::~PSM(){
 }
 
 void PSM::init(){
-    memset(B, 0, M*sizeof(int));
+    memset(B, 0, m*sizeof(int));
     memset(NB, 0, n*sizeof(int));
-    for(int i = 0; i < M; ++i){
+    for(int i = 0; i < m; ++i){
         B[i] = i + n;
         inner_dict[i + n] = i;
     }
@@ -195,13 +191,13 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
     int T = 0;
     int col_in = -1;
     int col_out = -1;
-    VectorXd xB_star(M);
-    VectorXd xB_bar(M);
-    VectorXd dxB(M);
+    VectorXd xB_star(m);
+    VectorXd xB_bar(m);
+    VectorXd dxB(m);
     VectorXd zN_star(n);
     VectorXd zN_bar(n);
     VectorXd dzN(n);
-	VectorXd xB(M);
+	VectorXd xB(m);
     VectorXd x_output(N);
     double t;
     double t_bar;
@@ -213,93 +209,192 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
     
     /*initialize*/
     init();
-    xB_star = b;
-    xB_bar = b_bar;
-    zN_star = -c.head(n);
-    zN_bar = -c_bar.head(n);
-    
+	xB_star = b;
+	xB_bar = b_bar;
+	zN_star = A_N_t * c.tail(m) - c.head(n);
+	zN_bar = A_N_t * c_bar.tail(m) - c_bar.head(n);
+	
+	/*set initial Basic*/
+	if(zN_bar.isZero()){
+		flag = PRIMAL;
+	}
+	else if(xB_bar.isZero()){
+		flag = DUAL;
+	}
+	else{
+		return result;
+	}
+	
+	/*Simplex Method*/
+	while(1){
+		/*break when primal(dual) optimal if flag is PRIMAL(DUAL)*/
+		col_in = -1;
+		col_out = -1;
+		if(flag == PRIMAL){
+			double min = -EPS;
+			for (int i = 0; i < n; ++i)
+			{
+				if(zN_star(i) < min){
+					min = zN_star(i);
+					col_in = NB[i];
+				}
+			}
+			if(col_in == -1){
+				/*optimal*/
+				break;
+			}
+			dxB = lusolve_update_dxb(col_in);
+			
+			min = DBL_MAX;
+			for (int i = 0; i < m; ++i)
+			{
+				if(xB_bar(i) == 0 && dxB(i) > EPS){
+					double tmp = xB_star(i) / dxB(i);
+					if(tmp < min){
+						min = tmp;
+						col_out = B[i];
+					}
+				}
+			}
+			if(col_out == -1){
+				break;
+			}
+			dzN = lusolve_update_dzn(col_out);
+		}
+		else if(flag == DUAL){
+			double min = -EPS;
+			for (int i = 0; i < m; ++i)
+			{
+				if(xB_star(i) < min){
+					min = xB_star(i);
+					col_out = B[i];
+				}
+			}
+			if(col_out == -1){
+				/*optimal*/
+				break;
+			}
+			dzN = lusolve_update_dzn(col_out);
+			min = DBL_MAX;
+			for (int i = 0; i < n; ++i)
+			{
+				if(zN_bar(i) == 0 && dzN(i) > EPS){
+					double tmp = zN_star(i) / dzN(i);
+					if(tmp < min){
+						min = tmp;
+						col_in = NB[i];
+					}
+				}
+			}
+			if(col_in == -1){
+				break;
+			}
+			dxB = lusolve_update_dxb(col_in);
+		}
+		
+		/*Compute the dual and primal step lengths \
+		 for both variables and perturbations*/
+		t = xB_star[inner_dict[col_out]] / dxB[inner_dict[col_out]];
+		t_bar = xB_bar[inner_dict[col_out]] / dxB[inner_dict[col_out]];
+		s = zN_star[inner_dict[col_in]] / dzN[inner_dict[col_in]];
+		s_bar = zN_bar[inner_dict[col_in]] / dzN[inner_dict[col_in]];
+		
+		/*Update the primal and dual solutions*/
+		xB_star = xB_star - t * dxB;
+		xB_bar = xB_bar - t_bar * dxB;
+		zN_star = zN_star - s * dzN;
+		zN_bar = zN_bar - s_bar * dzN;
+		
+		zN_star(inner_dict[col_in]) = s;
+		zN_bar(inner_dict[col_in]) = s_bar;
+		xB_star(inner_dict[col_out]) = t;
+		xB_bar(inner_dict[col_out]) = t_bar;
+		
+		/*Update the basic and nonbasic index sets*/
+		A_N_t.row(inner_dict[col_in])=A.col(col_out);
+		B[inner_dict[col_out]] = col_in;
+		NB[inner_dict[col_in]] = col_out;
+		swap(inner_dict[col_in], inner_dict[col_out]);
+	}
     while(T < max_it){
         T++;
-        /*compute lambda_star*/
-        lambda_star = DBL_MIN;
+        lambda_star = 0;
         col_in = -1;
         col_out = -1;
-        flag = NONE;
-        for (int i = 0; i < n; ++i)
-        {
-            if(zN_bar(i) > EPS){
-                double tmp = - zN_star(i) / zN_bar(i);
-                if(tmp > lambda_star){
-                    lambda_star = tmp;
-                    col_in = NB[i];
-                    flag = NONBASIC;
-                }
-            }
-        }
-        for (int i = 0; i < M; ++i)
-        {
-            if(xB_bar(i) > EPS){
-                double tmp = - xB_star(i) / xB_bar(i);
-                if(tmp > lambda_star){
-                    lambda_star = tmp;
-                    col_out = B[i];
-                    flag = BASIC;
-                }
-            }
-        }
-        switch (flag) {
-            case NONBASIC:
-            {
-                /*Compute primal step direction*/
-                dxB = lusolve_update_dxb(col_in);
-                
-                /*Select leaving variable*/
-                double max = DBL_MIN;
-                for (int i = 0; i < M; ++i)
-                {
-                    if(!iszero(xB_star[i] + lambda_star * xB_bar[i])){
-                        double tmp = dxB[i] / \
-                        (xB_star[i] + lambda_star * xB_bar[i]);
-                        if(tmp > max){
-                            max = tmp;
-                            col_out = B[i];
-                        }
-                    }
-                }
-                
-                /*Compute dual step direction*/
-                dzN = lusolve_update_dzn(col_out);
-                
-                break;
-            }
-            case BASIC:
-            {
-                /*Compute dual step direction*/
-                dzN = lusolve_update_dzn(col_out);
-                
-                /*Select leaving variable*/
-                double max = DBL_MIN;
-                for (int i = 0; i < n; ++i)
-                {
-                    if(!iszero(zN_star[i] + lambda_star * zN_bar[i])){
-                        double tmp = dzN[i] / \
-                        (zN_star[i] + lambda_star * zN_bar[i]);
-                        if(tmp > max){
-                            max = tmp;
-                            col_in = NB[i];
-                        }
-                    }
-                }
-                
-                /*Compute primal step direction*/
-                dxB = lusolve_update_dxb(col_in);
-                break;
-            }
-            default:
-            {
-                break;
-            }
-        }
+		if(flag == DUAL){
+			/*compute lambda_star and select entering variable*/
+			for (int i = 0; i < n; ++i)
+			{
+				if(zN_bar(i) > EPS){
+					double tmp = - zN_star(i) / zN_bar(i);
+					if(tmp > lambda_star){
+						lambda_star = tmp;
+						col_in = NB[i];
+					}
+				}
+			}
+			if(col_in == -1){
+				break;
+			}
+			/*Compute primal step direction*/
+			dxB = lusolve_update_dxb(col_in);
+			
+			/*Select leaving variable*/
+			double min = DBL_MAX;
+			for (int i = 0; i < m; ++i)
+			{
+				if(dxB(i) > EPS){
+					double tmp;
+					tmp = (xB_star(i) + lambda_star * xB_bar(i)) / dxB(i);
+					if(tmp < min){
+						min = tmp;
+						col_out = B[i];
+					}
+				}
+			}
+			if(col_out == -1){
+				break;
+			}
+			/*Compute dual step direction*/
+			dzN = lusolve_update_dzn(col_out);
+		}
+		else if(flag == PRIMAL){
+			/*compute lambda_star and select leaving variable*/
+			for (int i = 0; i < m; ++i)
+			{
+				if(xB_bar(i) > EPS){
+					double tmp = - xB_star(i) / xB_bar(i);
+					if(tmp > lambda_star){
+						lambda_star = tmp;
+						col_out = B[i];
+					}
+				}
+			}
+			if(col_out == -1){
+				break;
+			}
+			/*Compute dual step direction*/
+			dzN = lusolve_update_dzn(col_out);
+			
+			/*Select entering variable*/
+			double min = DBL_MAX;
+			for (int i = 0; i < n; ++i)
+			{
+				if(dzN(i) > EPS){
+					double tmp;
+					tmp = (zN_star(i) + lambda_star * zN_bar(i)) / dzN(i);
+					if(tmp < min){
+						min = tmp;
+						col_in = NB[i];
+					}
+				}
+			}
+			if(col_in == -1){
+				break;
+			}
+			/*Compute primal step direction*/
+			dxB = lusolve_update_dxb(col_in);
+		}
 		
         /*Compute the dual and primal step lengths \
          for both variables and perturbations*/
@@ -328,7 +423,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 		/*Update the output result*/
 		xB = xB_star + lambda_star * xB_bar;
 		x_output.setZero();
-		for(int i = 0; i < M; ++i){
+		for(int i = 0; i < m; ++i){
 			x_output[B[i]] = xB[i];
 		}
 		y_output = x_output.transpose()*(c + lambda_star * c_bar);
@@ -338,6 +433,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 			break;
 		}
     }
+	
     /*reset*/
     lusolve_update_dxb(-1);
     lusolve_update_dzn(-1);
