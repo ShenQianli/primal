@@ -78,9 +78,6 @@ $python benchmark.py
 
 ### R package
 
-
-Details of our benmarking process are documented in XXX.
-
 Some description.
 
 ![A figure]()
@@ -94,19 +91,19 @@ Some description.
 
 ## References
 
-[1] Dantzig G. Linear programming and extensions. Princeton university press, 2016.
+[1] Dantzig G. Linear programming and extensions, 2016.
 
-[2] Belloni A, Chernozhukov V. ℓ1-penalized quantile regression in high-dimensional sparse models[J]. The Annals of Statistics, 2011, 39(1): 82-130.
+[2] Belloni A, Chernozhukov V. ℓ1-penalized quantile regression in high-dimensional sparse models, 2011.
 
-[2] Candes E, Tao T. The Dantzig selector: Statistical estimation when p is much larger than n. The annals of Statistics, 2007, 35(6): 2313-2351.
+[2] Candes E, Tao T. The Dantzig selector: Statistical estimation when p is much larger than n, 2007.
 
-[3] Wang L. The L1 penalized LAD estimator for high dimensional linear regression. Journal of Multivariate Analysis, 2013, 120: 135-151.
+[3] Wang L. The L1 penalized LAD estimator for high dimensional linear regression, 2013.
 
-[4] Hudson N J, Reverter A, Dalrymple B P. A differential wiring analysis of expression data correctly identifies the gene containing the causal mutation[J]. PLoS computational biology, 2009, 5(5): e1000382.
+[4] Hudson N J, Reverter A, Dalrymple B P. A differential wiring analysis of expression data correctly identifies the gene containing the causal mutation, 2009.
 
-[5] Bandyopadhyay S, Mehta M, Kuo D, et al. Rewiring of genetic networks in response to DNA damage[J]. Science, 2010, 330(6009): 1385-1389.
+[5] Bandyopadhyay S, Mehta M, Kuo D, et al. Rewiring of genetic networks in response to DNA damage, 2010.
 
-[6] Pang H, Liu H, Vanderbei R, Zhao T. Parametric simplex method for sparse learning. Advances in Neural Information Processing Systems. 2017.
+[6] Pang H, Liu H, Vanderbei R, Zhao T. Parametric simplex method for sparse learning, 2017.
 
 
 
