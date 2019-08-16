@@ -1,4 +1,3 @@
-[![Build Status](http://circleci-badges-max.herokuapp.com/img/jasonge27/picasso/1?token=65317b48c13e9567b12e5a8c52661d709d3f605e)](https://circleci.com/gh/jasonge27/picasso/1)
 <h1 align="center">PRIMAL</h1>
 <h4 align="center">High Performance R and Python Library for Sparse Learning</h4>
 
@@ -7,8 +6,8 @@ ___PRIMAL___ (PaRametric sImplex Method for spArse Learning) implements a unifie
 ## Table of contents
 
 - [Table of contents](#table-of-contents)
-- [Directory structure](#directory-structure)
 - [Introduction](#introduction)
+- [Directory structure](#directory-structure)
 - [Installation](#installation)
     - [Installing R package](#installing-r-package)
     - [Installing Python package](#installing-python-package)
@@ -17,12 +16,18 @@ ___PRIMAL___ (PaRametric sImplex Method for spArse Learning) implements a unifie
     - [Python package](#python-package)
 - [References](#references)
 
+## Introduction
+
+Linear Programming (LP) based sparse learning methods, such as the Dantzig selector (for linear regression) [1], sparse quantile regression [2], sparse support vector machines [3], have been widely used in machine learning for high dimensional data analysis [2, 4, 5]. Despite of their popularity, their software implementations are quite limited. This library -- PaRametric sImplex Method for spArse Learning (PRIMAL) is proposed for the aforementioned LP-based sparse learning methods. It has the following two key features: 1) It provides a highly efficient optimization engine based on the parametric simplex method [6], which can efficiently solve large scale sparse learning problems; 2) Besides the estimation procedures, it provides additional functional modules such as data-dependent model selection and model visualization.
+
+We also provide tutorials on the theoretical background and the code. Please see ``tutorial`` folder for tutorials.
+
+
 ## Directory structure
 The directory is organized as follows:
-* [__src__](src): C++ implementation of the PSM algorithm and the corresponding Makefile.
-	* [__src__](src): C++ implementation of the PSM algorithm.
-	   * [__api.cpp__](api.cpp): C API as an interface for R and Python package.
-	   * [__PSM.cpp__](PSM.cpp): Core implemetation of the PSM solver. 
+* [__src__](src): C++ implementation of the PSM algorithm.
+	* [__api.cpp__](api.cpp): C API as an interface for R and Python package.
+	* [__PSM.cpp__](PSM.cpp): Core implemetation of the PSM solver. 
 * [__include__](include)
 	* [__PSM__](PSM): declarations of the C++ implementation
 	* [__Eigen__](eigen3): Eigen3 header files for high performance linear algebra.
@@ -33,11 +38,6 @@ The directory is organized as follows:
 * [__Makefile__](Makefile):Makefile local configurations.
 * [__CmakeLists.txt__](CmakeLists.txt):Makefile local configurations.
 
-## Introduction
-
-Linear Programming (LP) based sparse learning methods, such as the Dantzig selector (for linear regression) [1], sparse quantile regression [2], sparse support vector machines [3], have been widely used in machine learning for high dimensional data analysis [2, 4, 5]. Despite of their popularity, their software implementations in R are quite limited. Our GSOC project aims to develop a new R package -- PaRametric sImplex Method for spArse Learning (PRIMAL), for the aforementioned LP-based sparse learning methods with the following two key features: 1) It provides a highly efficient optimization engine based on the parametric simplex method [6], which can efficiently solve large scale sparse learning problems; 2) Besides the estimation procedures, it provides additional functional modules such as data-dependent model selection and model visualization.
-
-We also provide tutorials on the theoretical background and the code. Please see ``tutorial`` folder for tutorials.
 
 
 ## Installation
