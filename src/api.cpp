@@ -49,7 +49,7 @@ extern "C" void QuantileRegression_api
 	c = -c;
 	
 	c_bar.setZero();
-	c_bar.head(2*n).setOnes();
+	c_bar.head(2*d).setOnes();
 	c_bar = -c_bar;
 	
 	PSM psm(A, b, b_bar, c, c_bar);
@@ -136,7 +136,7 @@ extern "C" void SparseSVM_api
 			x_list[t*d+i] = x[i] - x[i+d];
 		}
 		y_list[t] = -result.y_list[t];
-		x0_list[t] = x[t*d+2*d] - x[t*d+2*d+1];
+		x0_list[t] = x[2*d] - x[2*d+1];
 	}
 }
 
