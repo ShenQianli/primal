@@ -1,8 +1,7 @@
-include *.md *.rst
+include *.md
 recursive-include lib *
-recursive-include data *
-recursive-include pypsm *
-recursive-include pypsm/lib *
+recursive-include pyprimal *
+recursive-include pyprimal/lib *
 #exclude pre-compiled .o and .a file for less confusions
 #make sure .a files are all removed for forcing compiling
 #include the pre-compiled .so is needed as a placeholder
