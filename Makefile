@@ -1,7 +1,81 @@
+ROOTDIR = $(CURDIR)
+
+ifeq ($(OS), Windows_NT)
+	UNAME="Windows"
+else
+	UNAME=$(shell uname)
+endif
+
+# set compiler defaults for OSX versus *nix
+# let people override either
+OS := $(shell uname)
+ifeq ($(OS), Darwin)
+ifndef CC
+export CC = $(if $(shell which clang), clang, gcc)
+endif
+ifndef CXX
+export CXX = $(if $(shell which clang++), clang++, g++)
+endif
+else
+# linux defaults
+ifndef CC
+export CC = gcc
+endif
+ifndef CXX
+export CXX = g++
+endif
+endif
+
+export LDFLAGS = 
+export CFLAGS = -std=c++11 -Wall -Wno-unknown-pragmas -I ./include 
+
+ifneq ($(UNAME), Windows)
+	CFLAGS += -fPIC
+ifeq ($(UNAME), Linux)
+	LDFLAGS += -lrt
+	PSM_DYLIB = lib/libpsm.so
+else
+	PSM_DYLIB = lib/libpsm.dylib
+endif
+else
+	PSM_DYLIB = lib/libpsm.dll
+endif
+
+# specify tensor path
+.PHONY: clean all clean_all doxygen Pypack Pyinstall Rpack Rbuild Rcheck
+
+
+all: lib/libpsm.a $(PSM_DYLIB)
+
+dylib: $(PSM_DYLIB)
+
+build/PSM.o: src/PSM.cpp
+	@mkdir -p $(@D)
+	$(CXX) -c $(CFLAGS) $< -o $@
+
+build/api.o: src/api.cpp
+	@mkdir -p $(@D)
+	$(CXX) -c $(CFLAGS) $< -o $@
+
+lib/libpsm.a: build/PSM.o build/api.o
+	@mkdir -p $(@D)
+	ar crv $@ $^
+
+lib/libpsm.dll lib/libpsm.so lib/libpsm.dylib: build/PSM.o build/api.o
+	@mkdir -p $(@D)
+	$(CXX) $(CFLAGS) -shared -o $@ $^ $(LDFLAGS)
 
 clean:
-	$(RM) -rf build lib bin *~ */*~ */*/*~ */*/*/*~ */*.o */*/*.o */*/*/*.o primal
+	$(RM) -rf build lib
 
+clean_all: clean
+
+# install python-package
+Pyinstall: ${PSM_DYLIB}
+	rm -rf python-package/pyprimal/lib/
+	mkdir python-package/pyprimal/lib/
+	cp -rf ${PSM_DYLIB} python-package/pyprimal/lib/
+	cd python-package; python setup.py install; cd ..
 
 # Script to make a clean installable R package.
 Rpack:
