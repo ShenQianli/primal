@@ -46,7 +46,7 @@ Third-party dependencies. The installation only depends on Eigen3's header files
 There are two ways to install the picasso R package.
 - Installing from CRAN (recommended). The R package is hosted on CRAN. The easiest way to install R package is by running the following command in R
 ```R
-install.packages("PSM")
+install.packages("PRIMAL")
 ```
 
 - Installing from source code.
@@ -78,9 +78,10 @@ $python benchmark.py
 
 ### R package
 
-Some description.
-
-![A figure]()
+We compare the timing performance of our package with R package "fastclime" and "flare". We fix the sample size n to be 200 and vary the data dimension d from 200 to 1000. Each entries of X is independent Gaussian and Gaussianized such that the column has uniform norm. We randomly select 2% entries from vector θ to be nonzero. Algorithm will stop when λ is less than <img src="http://chart.googleapis.com/chart?cht=tx&chl= $$2\sigma\sqrt{log(d)/n}$$" style="border:none;">. In "flare", we estimate θ when λ is equal to the smallest value in the Dantzig selector model. This means "flare" just give out one result with one specific λ, while our package give out a full solution path.
+- Dantzig selector. PRIMAL achieves similar optimization performance to fastclime and flare. But PRIMAL is 2 times faster than fastclime and 3-30 times faster than flare.
+- Compressed sensing. PRIMAL is 2 times faster than fastclime and achieves similar optimization.
+![Performance_R](https://github.com/ShenQianli/primal/blob/master/profiling/images/performance_R.jpg)
 
 ### Python package
 

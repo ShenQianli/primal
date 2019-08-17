@@ -99,11 +99,11 @@ Rbuild:
 
 Rcheck:
 	$(MAKE) Rbuild
-	R CMD check  PRIMAL_1.0.tar.gz
+	R CMD check  PRIMAL_1.0.0.tar.gz
 
 Rinstall:
 	$(MAKE) Rbuild
-	R CMD INSTALL  PRIMAL_1.0.tar.gz
+	R CMD INSTALL  PRIMAL_1.0.0.tar.gz
 
 -include build/*.d
 -include build/*/*.d
