@@ -37,7 +37,7 @@ QuantileRegression_solver <- function(X, y, max_it = 50, lambda_threshold = 0.01
                 response = y,
                 beta = x_list, 
                 df = df, 
-                value = unlist(str[11]), 
+                value = unlist(str[11])[1:t], 
                 iterN = t, 
                 lambda = unlist(str[9])[1:t], 
                 runtime = runt)

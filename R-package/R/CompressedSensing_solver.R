@@ -36,7 +36,7 @@ CompressedSensing_solver <- function(X, y, max_it = 50, lambda_threshold = 0.01)
                 response = y,
                 beta = x_list, 
                 df = df, 
-                value = unlist(str[10]), 
+                value = unlist(str[10])[1:t], 
                 iterN = t, 
                 lambda = unlist(str[8])[1:t], 
         runtime = runt)

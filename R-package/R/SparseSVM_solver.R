@@ -67,7 +67,7 @@ SparseSVM_solver <- function(X, y, max_it = 50, lambda_threshold = 0.01) {
                 beta = x_list, 
                 beta0 = unlist(str[11])[1:t], 
                 df = df, 
-                value = unlist(str[10]), 
+                value = unlist(str[10])[1:t], 
                 iterN = t, 
                 lambda = unlist(str[8])[1:t], 
                 runtime = runt)
