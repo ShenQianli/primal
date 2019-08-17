@@ -78,10 +78,10 @@ $python benchmark.py
 
 ### R package
 
-We compare the timing performance of our package with R package "fastclime" and "flare". We fix the sample size n to be 200 and vary the data dimension d from 200 to 1000. Each entries of X is independent Gaussian and Gaussianized such that the column has uniform norm. We randomly select 2% entries from vector θ to be nonzero. Algorithm will stop when λ is less than $$2 * \sigma * \sqrt{log(d)/n}$$. In "flare", we estimate θ when λ is equal to the smallest value in the Dantzig selector model. This means "flare" just give out one result with one specific λ, while our package give out a full solution path.
+We compare the timing performance of our package with R package "fastclime" and "flare". We fix the sample size n to be 200 and vary the data dimension d from 200 to 1000. Each entries of X is independent Gaussian and Gaussianized such that the column has uniform norm. We randomly select 2% entries from vector θ to be nonzero. Algorithm will stop when λ is less than $$2*\sigma*\sqrt{log(d)/n}$$. In "flare", we estimate θ when λ is equal to the smallest value in the Dantzig selector model. This means "flare" just give out one result with one specific λ, while our package give out a full solution path.
 - Dantzig selector. PRIMAL achieves similar optimization performance to fastclime and flare. But PRIMAL is 2 times faster than fastclime and 3-30 times faster than flare.
 - Compressed sensing. PRIMAL is 2 times faster than fastclime and achieves similar optimization.
-![Performance_R](https://raw.githubusercontent.com/ShenQianli/PSM/master/profiling/images/performance_R.png?token=AMWY2UFBNHLRENROLO43Q425K42VO)
+![Performance_R](https://raw.githubusercontent.com/ShenQianli/primal/master/profiling/images/performance_R.png?token=AMWY2UDGNJRVOKHAM3NUUWS5K55JQ)
 
 ### Python package
 
