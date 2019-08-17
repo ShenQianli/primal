@@ -1,14 +1,11 @@
 Package: PRIMAL
 Type: Package
-Title: What the Package Does in One 'Title Case' Line
-Version: 1.0
-Date: 2019-08-05
-Author: Your Name
-Maintainer: Your Name <your@email.com>
-Description: One paragraph description of what the package does as one or more full sentences.
+Title: A package for parametric simplex method for sparse learning
+Version: 1.0.0
+Date: 2019-08-15
+Author: Zichong Li, Qianli Shen
+Description: PRIMAL(PaRametric sImplex Method for spArse Learning) implements a unified framework of parametric simplex method for a variety of sparse learning problems (e.g., Dantzig selector (for linear regression), sparse quantile regression, sparse support vector machines, and compressive sensing) combined with efficient hyper-parameter selection strategies. The core algorithm is implemented in C++ with Eigen3 support for portable high performance linear algebra.
 License: GPL (>= 2)
-Imports: Rcpp (>= 1.0.1)
-LinkingTo: Rcpp
 NeedsCompilation: yes
-Packaged: 2019-08-06 04:19:38 UTC; lizichong
+Packaged: 2019-08-17 00:00:49 UTC; lizichong
 RoxygenNote: 6.1.1
