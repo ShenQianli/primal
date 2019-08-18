@@ -57,14 +57,14 @@ $ cd primal; make Rinstall
 
 ### Installing Python package
 There are two ways to install the PSM (pypsm) python package.
-- Installing from PyPi (recommended). ``pip install pypsm --user``.
+- Installing from PyPi (recommended). ``pip install pyprimal --user``.
 - Installing from source code.
  ```bash
  $git clone --recurse-submodules https://github.com/ShenQianli/primal.git
  $cd primal; make Pyinstall
  ```
 
-You can test if the package has been successfully installed by ``python -c "import pypsm; psm.test()" ``
+You can test if the package has been successfully installed by ``python -c "import pyprimal; pyprimal.test()" ``
 
 
 ## Performance
