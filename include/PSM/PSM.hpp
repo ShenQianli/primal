@@ -4,8 +4,8 @@
 #include <iostream>
 #include <cstring>  /* malloc calloc memset*/
 #include <cfloat>	/* DBL_MAX DBL_MIN */
-#include <Eigen/Sparse>
-#include <Eigen/Dense>
+#include <eigen/Eigen/Sparse>
+#include <eigen/Eigen/Dense>
 
 #define EPS 1e-10
 

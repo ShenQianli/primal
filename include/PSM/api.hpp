@@ -1,7 +1,7 @@
 #ifndef API_HPP
 #define API_HPP
 
-#include <Eigen/Dense>
+#include <eigen/Eigen/Dense>
 
 #include "PSM/PSM.hpp"
 
