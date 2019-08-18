@@ -51,8 +51,8 @@ install.packages("PRIMAL")
 
 - Installing from source code.
 ```bash
-$ git clone --recurse-submodules https://github.com/ShenQianli/PSM.git
-$ cd PSM; make Rinstall
+$ git clone --recurse-submodules https://github.com/ShenQianli/primal.git
+$ cd primal; make Rinstall
 ```
 
 ### Installing Python package
@@ -60,13 +60,11 @@ There are two ways to install the PSM (pypsm) python package.
 - Installing from PyPi (recommended). ``pip install pypsm --user``.
 - Installing from source code.
  ```bash
- $git clone --recurse-submodules https://github.com/ShenQianli/PSM.git
- $cd PSM; make Pyinstall
+ $git clone --recurse-submodules https://github.com/ShenQianli/primal.git
+ $cd primal; make Pyinstall
  ```
 
 You can test if the package has been successfully installed by ``python -c "import pypsm; psm.test()" ``
-
-Details for installing python package can also be found in [document](https://hmjianggatech.github.io/picasso/) or [github](https://github.com/jasonge27/picasso/tree/master/python-package)
 
 
 ## Performance
