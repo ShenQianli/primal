@@ -80,7 +80,7 @@ Pyinstall: ${PSM_DYLIB}
 # Script to make a clean installable R package.
 Rpack:
 	$(MAKE) clean
-	rm -rf primal PRIMAL_1.0.tar.gz
+	rm -rf primal PRIMAL_1.0.0.tar.gz
 	cp -r R-package primal
 	rm -rf primal/src/*.o primal/src/*.so primal/src/*.dll
 	rm -rf primal/src/*/*.o
