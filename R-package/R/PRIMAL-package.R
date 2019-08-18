@@ -1,6 +1,7 @@
 #' @useDynLib PRIMAL, .registration = TRUE
 #' @importFrom stats runif
 #' @importFrom graphics par image plot lines matplot
+#' @importFrom Matrix Matrix t
 NULL
 
 #' Parametric Simplex Method for Sparse Learning

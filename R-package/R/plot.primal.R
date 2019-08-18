@@ -9,32 +9,32 @@
 #' @export
 plot.primal <- function(str, n = NULL, ...) {
     tt <- str$iterN
-        opar <- par(no.readonly = TRUE)
+    par(mfrow = c(1,1))
+    opar <- par(no.readonly = TRUE)
     if (is.null(n)) {
         par(mfrow = c(1, 3), family = "serif")
-        matplot(str$lambda[1:tt], t(str$beta[, 1:tt]), type = "l", 
+        matplot(str$lambda, t(str$beta), type = "l", 
                 main = "Regularization Path", xlab = "Regularization Parameter", 
                 ylab = "Coefficient", cex.main = 2, cex.lab = 1.6)
         matplot(1:tt, t(str$beta), type = "l", main = "Regularization Path", 
                 xlab = "Iteration", ylab = "Coefficient", cex.main = 2, cex.lab = 1.6)
-        plot(1:tt, str$lambda[1:tt], type = "l", main = "Value of Lambda along the Path", 
+        plot(1:tt, str$lambda, type = "l", main = "Value of Lambda along the Path", 
              xlab = "Iteration", ylab = "Lambda", cex.main = 2, cex.lab = 1.6)
-        par(opar)
     } else {
         opar <- par(no.readonly = TRUE)
         par(family = "serif")
         switch(n, 
-               matplot(str$lambda[1:tt], t(str$beta[, 1:tt]), type = "l", 
+               matplot(str$lambda, t(str$beta), type = "l", 
                        main = "Regularization Path", xlab = "Regularization Parameter", 
                        ylab = "Coefficient", cex.main = 2, cex.lab = 1.6), 
-               matplot(1:tt, t(str$beta[, 1:tt]), type = "l", main = "Regularization Path", 
+               matplot(1:tt, t(str$beta), type = "l", main = "Regularization Path", 
                        xlab = "Iteration", ylab = "Coefficient", cex.main = 2, cex.lab = 1.6),
-               plot(1:tt, str$lambda[1:tt], type = "l", main = "Value of Lambda along the Path", 
+               plot(1:tt, str$lambda, type = "l", main = "Value of Lambda along the Path", 
                     xlab = "Iteration", ylab = "Lambda", cex.main = 2, cex.lab = 1.6)
                )
-        par(opar)
         
     }
+    par(opar)
 }
 
 
