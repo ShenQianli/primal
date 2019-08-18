@@ -40,6 +40,9 @@ class QuantileRegression(psm):
                 self.result['theta_list'], self.result['target_list'])
             time_end = time.time()
             self.result['T'] = self.result['T'][0]
+            for key in self.result.keys():
+                if key.endswith('_list'):
+                    self.result[key] = self.result[key][:self.result['T']]
             self.result['time'] = time_end - time_start
 
         return wrapper
@@ -69,6 +72,9 @@ class SparseSVM(psm):
                 self.result['theta_list'], self.result['target_list'], self.result['theta0_list'])
             time_end = time.time()
             self.result['T'] = self.result['T'][0]
+            for key in self.result.keys():
+                if key.endswith('_list'):
+                    self.result[key] = self.result[key][:self.result['T']]
             self.result['time'] = time_end - time_start
 
         return wrapper
