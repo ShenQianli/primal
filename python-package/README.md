@@ -1,5 +1,6 @@
 # PYPRIMAL
-==========
+
+
 **PYPRIMAL**: **PY**thon package **P**a**R**ametric s**I**mplex **M**ethod for sp**A**rse **L**earning
 
 
@@ -15,14 +16,14 @@ Installation
 Install from source file (Github) with Makefile:
 
 - Clone ``primal.git`` via ``git clone --recurse-submodules https://github.com/ShenQianli/primal.git``
-- Make sure you have `setuptools <https://pypi.python.org/pypi/setuptools>`__  
+- Make sure you have [setuptools](https://pypi.python.org/pypi/setuptools)  
 - Run ``make Pyinstall`` command.
 
 
 Install from source file (Github) with CMAKE:
 
 - Clone ``primal.git`` via ``git clone --recurse-submodules https://github.com/ShenQianli/primal.git``
-- Make sure you have `setuptools <https://pypi.python.org/pypi/setuptools>`__
+- Make sure you have [setuptools](https://pypi.python.org/pypi/setuptools) 
 - Build the source file first via the ``cmake`` with ``CMakeLists.txt`` in the root directory. (You will see a ``.so`` or ``.dylib`` file under ``(root)/lib/`` )
 - Run ``cd python-package; sudo python setup.py install`` command.
 
@@ -44,11 +45,11 @@ You can test if the package has been successfully installed by:
 Usage
 -----
 
-See `tutorial <https://github.com/ShenQianli/primal/blob/master/tutorials/tutorial.ipynb>`__
+See [tutorial](https://github.com/ShenQianli/primal/blob/master/tutorials/tutorial.ipynb)
 
 
 Copy Right
 ----------
 
-:Author: Qianli Shen, Zichong Li
-:Maintainer: Qianli Shen <shenqianli@pku.edu.cn>
+Author: Qianli Shen, Zichong Li  
+Maintainer: Qianli Shen <shenqianli@pku.edu.cn>
