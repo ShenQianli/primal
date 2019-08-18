@@ -46,7 +46,7 @@ An object with S3 class \code{"primal"} is returned:
 }
 }
 \description{
-See more details in \code{\link{primal}}
+Solve given Sparse SVM problem in parametric simplex method
 }
 \seealso{
 \code{\link{primal-package}}

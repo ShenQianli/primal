@@ -4,6 +4,7 @@ Title: A package for parametric simplex method for sparse learning
 Version: 1.0.0
 Date: 2019-08-15
 Author: Zichong Li, Qianli Shen
+Maintainer: Zichong Li<lzc123@mail.ustc.edu.cn>
 Description: PRIMAL(PaRametric sImplex Method for spArse Learning) implements a unified framework of parametric simplex method for a variety of sparse learning problems (e.g., Dantzig selector (for linear regression), sparse quantile regression, sparse support vector machines, and compressive sensing) combined with efficient hyper-parameter selection strategies. The core algorithm is implemented in C++ with Eigen3 support for portable high performance linear algebra.
 License: GPL (>= 2)
 NeedsCompilation: yes
