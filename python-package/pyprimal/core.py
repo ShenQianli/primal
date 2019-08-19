@@ -87,7 +87,7 @@ class psm(object):
             print("Warning: The model has not been trained yet!")
         return self.result
 
-    def plot(self):
+    def plot(self, mode='trajectory'):
         '''
         Visualize
         '''
@@ -95,11 +95,20 @@ class psm(object):
             print("The model has not been trained yet!")
         else:
             import matplotlib.pyplot as plt
-            plt.plot(self.result['lambda_list'], self.result['target_list'])
-            plt.ylabel('Target')
-            plt.xlabel('Regularization Parameter')
-            plt.suptitle('Regularization Path')
-            plt.show()
+            if mode == 'trajectory':
+                plt.plot(self.result['lambda_list'], self.result['target_list'])
+                plt.ylabel('Target')
+                plt.xlabel('Regularization Parameter')
+                plt.suptitle('Trajectory')
+                plt.show()
+            elif mode == 'regpath':
+                plt.plot(self.result['lambda_list'], self.result['theta_list'])
+                plt.ylabel('Coefficient')
+                plt.xlabel('Regularization Parameter')
+                plt.suptitle('Regularization Path')
+                plt.show()
+            else:
+                raise NotImplementedError
 
     def predict(self):
         pass
