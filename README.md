@@ -67,6 +67,42 @@ There are two ways to install the PSM (pypsm) python package.
 You can test if the package has been successfully installed by ``python -c "import pyprimal; pyprimal.test()" ``
 
 
+## Examples
+
+### R User Interface
+
+Now we illustrate the R user interface using Dantzig selector as an example.
+ ```R
+ set.seed(1024)
+ library(PRIMAL)
+ ## Generate the design matrix and coefficient vector
+ n <- 100; d <- 250; c <- 0.5
+ # n sample number, d dimension, c correlation parameter
+ X <- scale(matrix(rnorm(n*d),n,d)+c*rnorm(n))/sqrt(n-1)*sqrt(n)
+ s <- 5 # sparsity level
+ beta <- c(runif(s,-1,1), rep(0, d-s))
+ Y <- X%*%beta + rnorm(n)
+ ## Dantzig selection solved with parametric simplex method
+ fit.dantzig <- Dantzig_solver(X, Y, max_it = 100, lambda_threshold = 0.01)
+ ## print lambdas used and number of nonzero coefficients for each lambda
+ print(fit.dantzig$lambda)
+ print(fit.dantzig$df)
+ ## Visualize the solution path
+ plot.primal(fit.dantzig)
+```
+### Python User Interface
+
+Here we use Sparse SVM as an example to illustrate the Python user interface.
+```python
+from pyprimal import SparseSVM
+x = [[1,2,3], [4,5,6], [7,8,9]]
+y = [-1, 1, 1]
+solver = SparseSVM(x, y)
+result = solver.coef()
+solver.plot()
+solver.plot('regpath')
+```
+
 ## Performance
 ```bash
 $cd profiling
