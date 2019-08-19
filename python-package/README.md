@@ -35,15 +35,24 @@ Install from PyPI:
 
 You can test if the package has been successfully installed by:
 
-.. code-block:: python
+```python
+import pyprimal
+pyprimal.test()
 
-        import pyprimal
-        pyprimal.test()
-
-..
+```
 
 Usage
 -----
+
+```python
+from pyprimal import SparseSVM
+x = [[1,2,3], [4,5,6], [7,8,9]]
+y = [-1, 1, 1]
+solver = SparseSVM(x, y)
+result = solver.coef()
+solver.plot()
+solver.plot('regpath')
+```
 
 See [tutorial](https://github.com/ShenQianli/primal/blob/master/tutorials/tutorial.ipynb)
 
