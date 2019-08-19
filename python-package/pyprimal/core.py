@@ -25,10 +25,10 @@ class psm(object):
             raise NotImplementedError
         # self.X = np.asfortranarray(X, dtype='double')
         # self.y = np.ascontiguousarray(y, dtype='double')
-        self.X = X
-        self.y = y
-        self.n = X.shape[0]
-        self.d = X.shape[1]
+        self.X = np.array(X, dtype='double')
+        self.y = np.array(y, dtype='double')
+        self.n = self.X.shape[0]
+        self.d = self.X.shape[1]
         self.family =family
 
         self.result = {'state': 'not trained'}
