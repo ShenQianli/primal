@@ -1,7 +1,7 @@
 #include "PSM/api.hpp"
 
-extern "C" void QuantileRegression_api
-(	int *_n,
+extern "C" void QuantileRegression_api(
+	int *_n,
 	int *_d,
 	double *_X,
 	double *_y,
@@ -67,8 +67,8 @@ extern "C" void QuantileRegression_api
 	}
 }
 
-extern "C" void SparseSVM_api
-(	int *_n,
+extern "C" void SparseSVM_api(
+	int *_n,
 	int *_d,
 	double *_X,
 	double *_y,
@@ -140,8 +140,8 @@ extern "C" void SparseSVM_api
 	}
 }
 
-extern "C" void Dantzig_api
-(	int *_n,
+extern "C" void Dantzig_api(
+	int *_n,
 	int *_d,
 	double *_X,
 	double *_y,
@@ -201,8 +201,7 @@ extern "C" void Dantzig_api
 	}
 }
 
-extern "C" void CompressedSensing_api
-(
+extern "C" void CompressedSensing_api(
 	int *_n,
 	int *_d,
 	double *_X,
@@ -261,5 +260,58 @@ extern "C" void CompressedSensing_api
 			x_list[t*d+i] = x[i] - x[i+d];
 		}
 		y_list[t] = -result.y_list[t];
+	}
+}
+
+extern "C" void ParametricSimplexMethod_api(
+	int *_M,
+	int *_N,
+	double *_A,
+	double *_b,
+	double *_b_bar,
+	double *_c,
+	double *_c_bar,
+	int *B_init,
+	int *max_it,
+	double *lambda_threshold,
+	int *T,
+	double *lambda_list,
+	double *x_list,
+	double *y_list
+ ){
+	int M = *_M;
+	int N = *_N;
+	int d = N;
+	MatrixXd A(M, N);
+	VectorXd b(M);
+	VectorXd b_bar(M);
+	VectorXd c(N);
+	VectorXd c_bar(N);
+	VectorXd x;
+	
+	for(int i = 0; i < M; ++i){
+		for(int j = 0; j < N; ++j){
+			A(i, j) = _A[i*N+j];
+		}
+		b(i) = _b[i];
+		b_bar(i) = _b_bar[i];
+	}
+	for(int i = 0; i < N; ++i){
+		c(i) = _c[i];
+		c_bar(i) = _c_bar[i];
+	}
+	
+	PSM psm(A, b, b_bar, c, c_bar);
+	PSMresult result = psm.solve(*max_it, *lambda_threshold);
+	
+	x.resize(result.d);
+	*T = result.T;
+	for(int t = 0; t < *T; ++t){
+		lambda_list[t] = result.lambda_list[t];
+		x = result.x_list.col(t);
+		for(int i = 0; i < d; ++i){
+			x_list[t*d+i] = x[i];
+		}
+		y_list[t] = result.y_list[t];
 	}
 }

@@ -53,10 +53,12 @@ public:
 		const VectorXd& _c,
 		const VectorXd& _c_bar);
 	~PSM();
-	void init();
+	void init(int *B_init = NULL);
+	VectorXd A_B_solve(VectorXd y, int itern);
+	VectorXd A_B_t_solve(VectorXd y, int itern);
 	VectorXd lusolve_update_dxb(int col_in);
 	VectorXd lusolve_update_dzn(int col_out);
-	PSMresult solve(int max_it, double lambda_threshold);
+	PSMresult solve(int max_it, double lambda_threshold, int *B_init = NULL);
 };
 
 #endif
