@@ -240,7 +240,6 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 				}
 			}
 			if(col_in == -1){
-				/*optimal*/
 				break;
 			}
 			dxB = lusolve_update_dxb(col_in);
@@ -271,7 +270,6 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 				}
 			}
 			if(col_out == -1){
-				/*optimal*/
 				break;
 			}
 			dzN = lusolve_update_dzn(col_out);
@@ -316,11 +314,11 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 		NB[inner_dict[col_in]] = col_out;
 		swap(inner_dict[col_in], inner_dict[col_out]);
 	}
-    while(T < max_it){
-        T++;
-        lambda_star = 0;
-        col_in = -1;
-        col_out = -1;
+	while(T < max_it){
+		T++;
+		lambda_star = 0;
+		col_in = -1;
+		col_out = -1;
 		if(flag == DUAL){
 			/*compute lambda_star and select entering variable*/
 			for (int i = 0; i < n; ++i)
@@ -333,30 +331,28 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 					}
 				}
 			}
-			if(col_in == -1){
-				break;
-			}
-			/*Compute primal step direction*/
-			dxB = lusolve_update_dxb(col_in);
-			
-			/*Select leaving variable*/
-			double min = DBL_MAX;
-			for (int i = 0; i < m; ++i)
-			{
-				if(dxB(i) > EPS){
-					double tmp;
-					tmp = (xB_star(i) + lambda_star * xB_bar(i)) / dxB(i);
-					if(tmp < min){
-						min = tmp;
-						col_out = B[i];
+			if(col_in != -1){
+				/*Compute primal step direction*/
+				dxB = lusolve_update_dxb(col_in);
+				
+				/*Select leaving variable*/
+				double min = DBL_MAX;
+				for (int i = 0; i < m; ++i)
+				{
+					if(dxB(i) > EPS){
+						double tmp;
+						tmp = (xB_star(i) + lambda_star * xB_bar(i)) / dxB(i);
+						if(tmp < min){
+							min = tmp;
+							col_out = B[i];
+						}
 					}
 				}
+				if(col_out != -1){
+					/*Compute dual step direction*/
+					dzN = lusolve_update_dzn(col_out);
+				}
 			}
-			if(col_out == -1){
-				break;
-			}
-			/*Compute dual step direction*/
-			dzN = lusolve_update_dzn(col_out);
 		}
 		else if(flag == PRIMAL){
 			/*compute lambda_star and select leaving variable*/
@@ -370,55 +366,29 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 					}
 				}
 			}
-			if(col_out == -1){
-				break;
-			}
-			/*Compute dual step direction*/
-			dzN = lusolve_update_dzn(col_out);
-			
-			/*Select entering variable*/
-			double min = DBL_MAX;
-			for (int i = 0; i < n; ++i)
-			{
-				if(dzN(i) > EPS){
-					double tmp;
-					tmp = (zN_star(i) + lambda_star * zN_bar(i)) / dzN(i);
-					if(tmp < min){
-						min = tmp;
-						col_in = NB[i];
+			if(col_out != -1){
+				/*Compute dual step direction*/
+				dzN = lusolve_update_dzn(col_out);
+				
+				/*Select entering variable*/
+				double min = DBL_MAX;
+				for (int i = 0; i < n; ++i)
+				{
+					if(dzN(i) > EPS){
+						double tmp;
+						tmp = (zN_star(i) + lambda_star * zN_bar(i)) / dzN(i);
+						if(tmp < min){
+							min = tmp;
+							col_in = NB[i];
+						}
 					}
 				}
+				if(col_in != -1){
+					/*Compute primal step direction*/
+					dxB = lusolve_update_dxb(col_in);
+				}
 			}
-			if(col_in == -1){
-				break;
-			}
-			/*Compute primal step direction*/
-			dxB = lusolve_update_dxb(col_in);
 		}
-		
-        /*Compute the dual and primal step lengths \
-         for both variables and perturbations*/
-        t = xB_star[inner_dict[col_out]] / dxB[inner_dict[col_out]];
-        t_bar = xB_bar[inner_dict[col_out]] / dxB[inner_dict[col_out]];
-        s = zN_star[inner_dict[col_in]] / dzN[inner_dict[col_in]];
-        s_bar = zN_bar[inner_dict[col_in]] / dzN[inner_dict[col_in]];
-		
-        /*Update the primal and dual solutions*/
-        xB_star = xB_star - t * dxB;
-        xB_bar = xB_bar - t_bar * dxB;
-        zN_star = zN_star - s * dzN;
-        zN_bar = zN_bar - s_bar * dzN;
-		
-        zN_star(inner_dict[col_in]) = s;
-        zN_bar(inner_dict[col_in]) = s_bar;
-        xB_star(inner_dict[col_out]) = t;
-        xB_bar(inner_dict[col_out]) = t_bar;
-		
-        /*Update the basic and nonbasic index sets*/
-        A_N_t.row(inner_dict[col_in])=A.col(col_out);
-        B[inner_dict[col_out]] = col_in;
-        NB[inner_dict[col_in]] = col_out;
-        swap(inner_dict[col_in], inner_dict[col_out]);
 		
 		/*Update the output result*/
 		xB = xB_star + lambda_star * xB_bar;
@@ -428,11 +398,36 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 		}
 		y_output = x_output.transpose()*(c + lambda_star * c_bar);
 		result.update(lambda_star , x_output, y_output);
+		
 		/*check threshold*/
-		if(lambda_star <= lambda_threshold){
+		if(lambda_star <= lambda_threshold || col_in == -1 || col_out == -1){
 			break;
 		}
-    }
+		
+		/*Compute the dual and primal step lengths \
+		 for both variables and perturbations*/
+		t = xB_star[inner_dict[col_out]] / dxB[inner_dict[col_out]];
+		t_bar = xB_bar[inner_dict[col_out]] / dxB[inner_dict[col_out]];
+		s = zN_star[inner_dict[col_in]] / dzN[inner_dict[col_in]];
+		s_bar = zN_bar[inner_dict[col_in]] / dzN[inner_dict[col_in]];
+		
+		/*Update the primal and dual solutions*/
+		xB_star = xB_star - t * dxB;
+		xB_bar = xB_bar - t_bar * dxB;
+		zN_star = zN_star - s * dzN;
+		zN_bar = zN_bar - s_bar * dzN;
+		
+		zN_star(inner_dict[col_in]) = s;
+		zN_bar(inner_dict[col_in]) = s_bar;
+		xB_star(inner_dict[col_out]) = t;
+		xB_bar(inner_dict[col_out]) = t_bar;
+		
+		/*Update the basic and nonbasic index sets*/
+		A_N_t.row(inner_dict[col_in])=A.col(col_out);
+		B[inner_dict[col_out]] = col_in;
+		NB[inner_dict[col_in]] = col_out;
+		swap(inner_dict[col_in], inner_dict[col_out]);
+	}
 	
     /*reset*/
     lusolve_update_dxb(-1);
