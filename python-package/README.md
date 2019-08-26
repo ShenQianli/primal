@@ -49,6 +49,7 @@ from pyprimal import SparseSVM
 x = [[1,2,3], [4,5,6], [7,8,9]]
 y = [-1, 1, 1]
 solver = SparseSVM(x, y)
+solver.train()
 result = solver.coef()
 solver.plot()
 solver.plot('regpath')
