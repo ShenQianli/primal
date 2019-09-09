@@ -5,6 +5,8 @@
 
 #include "PSM/PSM.hpp"
 
+#include <iostream>
+
 
 extern "C" void QuantileRegression_api(
 	int *_n,
@@ -61,20 +63,20 @@ extern "C" void CompressedSensing_api(
 );
 
 extern "C" void ParametricSimplexMethod_api(
- 	int *_n,
-	int *_d,
+	int *_M,
+	int *_N,
 	double *_A,
 	double *_b,
- 	double *_b_bar,
- 	double *_c,
- 	double *_c_bar,
-	int *B_init,
+	double *_b_bar,
+	double *_c,
+	double *_c_bar,
 	int *max_it,
 	double *lambda_threshold,
 	int *T,
 	double *lambda_list,
 	double *x_list,
-	double *y_list
+	double *y_list,
+	int *B_init
 );
 
 #endif

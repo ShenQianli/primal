@@ -271,13 +271,13 @@ extern "C" void ParametricSimplexMethod_api(
 	double *_b_bar,
 	double *_c,
 	double *_c_bar,
-	int *B_init,
 	int *max_it,
 	double *lambda_threshold,
 	int *T,
 	double *lambda_list,
 	double *x_list,
-	double *y_list
+	double *y_list,
+	int *B_init
  ){
 	int M = *_M;
 	int N = *_N;
@@ -302,7 +302,8 @@ extern "C" void ParametricSimplexMethod_api(
 	}
 	
 	PSM psm(A, b, b_bar, c, c_bar);
-	PSMresult result = psm.solve(*max_it, *lambda_threshold);
+	if(B_init[0] == -1) B_init = NULL;
+	PSMresult result = psm.solve(*max_it, *lambda_threshold, B_init);
 	
 	x.resize(result.d);
 	*T = result.T;

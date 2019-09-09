@@ -10,4 +10,5 @@ def test():
 
 __all__ = ["model"]
 
+from .core import PSMsolver
 from .model import QuantileRegression, SparseSVM, Dantzig, CompressedSensing

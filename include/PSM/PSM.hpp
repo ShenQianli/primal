@@ -13,6 +13,7 @@ using namespace std;
 using namespace Eigen;
 
 enum FLAGTYPE{NONE, PRIMAL, DUAL};
+enum STATE{OPTIMAL, NOTOPTIMAL, FEASIBLE, NOTFEASIBLE};
 
 class PSMresult{
 public:

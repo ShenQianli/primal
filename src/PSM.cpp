@@ -225,7 +225,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold, int *B_init){
 	double t_bar;
 	double s;
 	double s_bar;
-	double lambda_star;
+	double lambda_star=0;
 	double y_output;
 	PSMresult result(max_it, N);
 	
@@ -279,6 +279,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold, int *B_init){
 			}
 			if(col_in == -1){
 				/*optimal*/
+				cout << "sm: optimal!!!" << endl;
 				break;
 			}
 			dxB = lusolve_update_dxb(col_in);
@@ -295,6 +296,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold, int *B_init){
 				}
 			}
 			if(col_out == -1){
+				cout << "sm: not optimal!!!" << endl;
 				break;
 			}
 			dzN = lusolve_update_dzn(col_out);
@@ -310,6 +312,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold, int *B_init){
 			}
 			if(col_out == -1){
 				/*optimal*/
+				cout << "sm: feasible!!!" << endl;
 				break;
 			}
 			dzN = lusolve_update_dzn(col_out);
@@ -325,6 +328,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold, int *B_init){
 				}
 			}
 			if(col_in == -1){
+				cout << "sm: not feasible!!!" << endl;
 				break;
 			}
 			dxB = lusolve_update_dxb(col_in);
@@ -372,29 +376,34 @@ PSMresult PSM::solve(int max_it, double lambda_threshold, int *B_init){
 				}
 			}
 			if(col_in == -1){
-				break;
+				cout << "psm: optimal!!!" << endl;
 			}
-			/*Compute primal step direction*/
-			dxB = lusolve_update_dxb(col_in);
-			
-			/*Select leaving variable*/
-			double min = DBL_MAX;
-			for (int i = 0; i < m; ++i)
-			{
-				if(dxB(i) > EPS){
-					double tmp;
-					tmp = (xB_star(i) + lambda_star * xB_bar(i)) / dxB(i);
-					if(tmp < min){
-						min = tmp;
-						col_out = B[i];
+			else{
+				/*Compute primal step direction*/
+				dxB = lusolve_update_dxb(col_in);
+				
+				/*Select leaving variable*/
+				double min = DBL_MAX;
+				for (int i = 0; i < m; ++i)
+				{
+					if(dxB(i) > EPS){
+						double tmp;
+						tmp = (xB_star(i) + lambda_star * xB_bar(i)) / dxB(i);
+						if(tmp < min){
+							min = tmp;
+							col_out = B[i];
+						}
 					}
 				}
+				if(col_out == -1){
+					cout << "psm: not optimal!!!" << endl;
+					break;
+				}
+				else{
+					/*Compute dual step direction*/
+					dzN = lusolve_update_dzn(col_out);
+				}
 			}
-			if(col_out == -1){
-				break;
-			}
-			/*Compute dual step direction*/
-			dzN = lusolve_update_dzn(col_out);
 		}
 		else if(flag == PRIMAL){
 			/*compute lambda_star and select leaving variable*/
@@ -409,29 +418,47 @@ PSMresult PSM::solve(int max_it, double lambda_threshold, int *B_init){
 				}
 			}
 			if(col_out == -1){
-				break;
+				cout << "psm: feasible!!!" << endl;
 			}
-			/*Compute dual step direction*/
-			dzN = lusolve_update_dzn(col_out);
-			
-			/*Select entering variable*/
-			double min = DBL_MAX;
-			for (int i = 0; i < n; ++i)
-			{
-				if(dzN(i) > EPS){
-					double tmp;
-					tmp = (zN_star(i) + lambda_star * zN_bar(i)) / dzN(i);
-					if(tmp < min){
-						min = tmp;
-						col_in = NB[i];
+			else{
+				/*Compute dual step direction*/
+				dzN = lusolve_update_dzn(col_out);
+				
+				/*Select entering variable*/
+				double min = DBL_MAX;
+				for (int i = 0; i < n; ++i)
+				{
+					if(dzN(i) > EPS){
+						double tmp;
+						tmp = (zN_star(i) + lambda_star * zN_bar(i)) / dzN(i);
+						if(tmp < min){
+							min = tmp;
+							col_in = NB[i];
+						}
 					}
 				}
+				if(col_in == -1){
+					cout << "psm: not feasible!!!" << endl;
+				}
+				else{
+					/*Compute primal step direction*/
+					dxB = lusolve_update_dxb(col_in);
+				}
 			}
-			if(col_in == -1){
-				break;
-			}
-			/*Compute primal step direction*/
-			dxB = lusolve_update_dxb(col_in);
+		}
+		
+		/*Update the output result*/
+		xB = xB_star + lambda_star * xB_bar;
+		x_output.setZero();
+		for(int i = 0; i < m; ++i){
+			x_output[B[i]] = xB[i];
+		}
+		y_output = x_output.transpose()*(c + lambda_star * c_bar);
+		result.update(lambda_star , x_output, y_output);
+		
+		/*check threshold*/
+		if(lambda_star <= lambda_threshold || col_in == -1 || col_out == -1){
+			break;
 		}
 		
 		/*Compute the dual and primal step lengths \
@@ -457,19 +484,6 @@ PSMresult PSM::solve(int max_it, double lambda_threshold, int *B_init){
 		B[inner_dict[col_out]] = col_in;
 		NB[inner_dict[col_in]] = col_out;
 		swap(inner_dict[col_in], inner_dict[col_out]);
-		
-		/*Update the output result*/
-		xB = xB_star + lambda_star * xB_bar;
-		x_output.setZero();
-		for(int i = 0; i < m; ++i){
-			x_output[B[i]] = xB[i];
-		}
-		y_output = x_output.transpose()*(c + lambda_star * c_bar);
-		result.update(lambda_star , x_output, y_output);
-		/*check threshold*/
-		if(lambda_star <= lambda_threshold){
-			break;
-		}
 	}
 	
 	/*reset*/
