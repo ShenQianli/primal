@@ -110,8 +110,8 @@ $cd profiling
 $Rscript benchmark.R
 ```
 
-We compare the timing performance of our package with R package "fastclime". We fix the sample size n to be 200 and vary the data dimension d from 200 to 1000. Each entries of X is independent Gaussian and Gaussianized such that the column has uniform norm. We randomly select 2% entries from vector θ to be nonzero. Algorithm will stop when λ is less than <img src="http://chart.googleapis.com/chart?cht=tx&chl= $$2\sigma\sqrt{log(d)/n}$$" style="border:none;">. 
-- Dantzig selector. PRIMAL achieves similar optimization performance to fastclime. But PRIMAL is 6 to 8 times faster than fastclime.
+We compare the timing performance of our package with R package "fastclime". We fix the sample size n to be 200 and vary the data dimension d from 1000 to 7000 and 200 to 1000. Each entries of X is independent Gaussian and Gaussianized such that the column has uniform norm. We randomly select 2% entries from vector θ to be nonzero. Algorithm will stop when λ is less than <img src="http://chart.googleapis.com/chart?cht=tx&chl= $$2\sqrt{log(d)/n}$$" style="border:none;">. 
+- Dantzig selector. PRIMAL achieves similar optimization performance to fastclime. But PRIMAL is 6 to 10 times faster than fastclime.
 - Compressed sensing. PRIMAL is 2 times faster than fastclime and achieves similar optimization.
 ![Performance_R](https://github.com/ShenQianli/primal/blob/master/profiling/images/performance_R.jpg)
 
