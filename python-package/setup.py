@@ -49,6 +49,7 @@ setup(name='pyprimal',
       version=open(VERSION_PATH).read().strip(),
       description='PYthon package PaRametric sImplex Method for spArse Learning',
       long_description=open(os.path.join(CURRENT_DIR, 'README.md')).read(),
+      long_description_content_type="text/markdown",
       install_requires=[
           'numpy',
       ],
