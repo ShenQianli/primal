@@ -24,7 +24,7 @@ python-package/
 
 ## Requirements
 
-- Python >= 3.8
+- Python >= 3.9
 - NumPy >= 1.23
 - Compiled `libpsm` shared library (Linux `.so` or macOS `.dylib`)
 - Optional: matplotlib >= 3.5 for plotting

@@ -24,7 +24,7 @@ def find_lib_path() -> List[str]:
     if sys.platform == "darwin":
         candidates = ["libpsm.dylib", "libpsm.so"]
     elif sys.platform == "win32":
-        candidates = ["psm.dll", "libpsm.so"]
+        candidates = ["libpsm.dll", "libpsm.so"]
     else:
         candidates = ["libpsm.so"]
 

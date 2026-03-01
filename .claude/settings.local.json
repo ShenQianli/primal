@@ -1,0 +1,53 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\(''python-package/pyprimal/core.py''\\).read\\(\\)\\); print\\(''core.py OK''\\)\")",
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\(''python-package/pyprimal/model.py''\\).read\\(\\)\\); print\\(''model.py OK''\\)\")",
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\(''python-package/pyprimal/libpath.py''\\).read\\(\\)\\); print\\(''libpath.py OK''\\)\")",
+      "Bash(python3 -c \"import ast; ast.parse\\(open\\(''python-package/setup.py''\\).read\\(\\)\\); print\\(''setup.py OK''\\)\")",
+      "Bash(make clean)",
+      "Bash(make all)",
+      "Bash(git submodule update --init --recursive)",
+      "Bash(brew list eigen)",
+      "Bash(brew --prefix eigen)",
+      "Bash(brew install eigen)",
+      "Bash(make Pyinstall)",
+      "Bash(pip3 install -e .)",
+      "Bash(python3 -m venv /tmp/primal_test_venv)",
+      "Bash(source /tmp/primal_test_venv/bin/activate)",
+      "Bash(pip install numpy)",
+      "Bash(pip install -e .)",
+      "Bash(python3 -c \":*)",
+      "Bash(R --version)",
+      "Bash(make Rbuild)",
+      "Bash(R CMD INSTALL PRIMAL_1.0.0.tar.gz)",
+      "Bash(Rscript -e ':*)",
+      "Bash(/Users/tourzhao/Desktop/primal-master/.venv/bin/python benchmark.py)",
+      "Bash(/Users/tourzhao/Desktop/primal-master/.venv/bin/python -c \":*)",
+      "Bash(wc -l /Users/tourzhao/Desktop/primal-master/src/*.cpp /Users/tourzhao/Desktop/primal-master/include/PSM/*.hpp)",
+      "Bash(gh auth status)",
+      "Bash(gh repo view ShenQianli/primal --json name,defaultBranchRef,isEmpty)",
+      "Bash(ls /Users/tourzhao/Desktop/primal-master/PRIMAL_*.tar.gz /Users/tourzhao/Desktop/primal-master/PRIMAL.Rcheck)",
+      "Bash(git init)",
+      "Bash(git remote add origin https://github.com/ShenQianli/primal.git)",
+      "Bash(git add .gitignore LICENSE README.md Makefile CmakeLists.txt src/ include/ R-package/ python-package/ profiling/ tutorials/ .github/ .gitmodules)",
+      "Bash(git commit:*)",
+      "Bash(git config user.email \"tourzhao@gatech.edu\")",
+      "Bash(git config user.name \"Tuo Zhao\")",
+      "Bash(git fetch origin master)",
+      "Bash(git rebase origin/master)",
+      "Bash(xargs git checkout --theirs --)",
+      "Bash(git rm -rf include/eigen~HEAD)",
+      "Bash(git checkout --theirs -- include/eigen)",
+      "Bash(git rebase --abort)",
+      "Bash(git branch -m master local-backup)",
+      "Bash(git checkout -b master origin/master)",
+      "Bash(git checkout local-backup -- .)",
+      "Bash(git push origin master)",
+      "Bash(git branch -D local-backup)"
+    ],
+    "additionalDirectories": [
+      "/Users/tourzhao/Desktop/primal-master"
+    ]
+  }
+}
