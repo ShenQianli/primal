@@ -3,51 +3,52 @@
 PSMresult::PSMresult(int max_it, int _d){
     T = 0;
     d = _d;
-    lambda_list = (double *)malloc(max_it * sizeof(double));
+    lambda_list.resize(max_it, 0.0);
     x_list.resize(d, max_it);
-    y_list = (double *)malloc(max_it * sizeof(double));
+    y_list.resize(max_it, 0.0);
 }
 
-PSMresult::~PSMresult(){
-    free(lambda_list);
-    free(y_list);
-}
-
-void PSMresult::update(double lambda, VectorXd x, double y){
+void PSMresult::update(double lambda, Eigen::VectorXd x, double y){
     lambda_list[T] = lambda;
     x_list.col(T) = x;
     y_list[T] = y;
     T++;
 }
 
-PSM::PSM(const MatrixXd& _A,
-		 const VectorXd& _b,
-		 const VectorXd& _b_bar,
-		 const VectorXd& _c,
-		 const VectorXd& _c_bar
+PSM::PSM(const Eigen::MatrixXd& _A,
+		 const Eigen::VectorXd& _b,
+		 const Eigen::VectorXd& _b_bar,
+		 const Eigen::VectorXd& _c,
+		 const Eigen::VectorXd& _c_bar
 		 ):A(_A),b(_b),b_bar(_b_bar),c(_c),c_bar(_c_bar){
-	
+
     M = A.rows();
 	N = A.cols();
 	m = M;
 	n = N - m;
-    inner_dict = (int *)malloc(N*sizeof(int));
-    B = (int *)malloc(m*sizeof(int));
-    NB = (int *)malloc(n*sizeof(int));
+    inner_dict.resize(N, 0);
+    B.resize(m, 0);
+    NB.resize(n, 0);
     E_d.resize(m);
     Eta.resize(m,m);
     A_N_t.resize(n,m);
+
+    dxb_itern_ = 0;
+    dxb_first_ = true;
+    dzn_itern_ = 0;
+    dzn_first_ = true;
 }
 
-PSM::~PSM(){
-    free(B);
-    free(NB);
-    free(inner_dict);
+void PSM::reset_lu_state(){
+    dxb_itern_ = 0;
+    dxb_first_ = true;
+    dzn_itern_ = 0;
+    dzn_first_ = true;
 }
 
 void PSM::init(){
-    memset(B, 0, m*sizeof(int));
-    memset(NB, 0, n*sizeof(int));
+    std::memset(B.data(), 0, m*sizeof(int));
+    std::memset(NB.data(), 0, n*sizeof(int));
     for(int i = 0; i < m; ++i){
         B[i] = i + n;
         inner_dict[i + n] = i;
@@ -58,130 +59,113 @@ void PSM::init(){
     }
     E_d.setZero();
     Eta.setZero();
-    for (int i=0;i<n;i++)
+    for (int i = 0; i < n; i++)
     {
-        A_N_t.row(i)=A.col(NB[i]);
+        A_N_t.row(i) = A.col(NB[i]);
     }
 }
 
-VectorXd PSM::lusolve_update_dxb(int col_in){
+Eigen::VectorXd PSM::lusolve_update_dxb(int col_in){
     /*input i return A_B^(-1)*A_N*ei*/
-    static int itern = 0;
-    static bool isfirsttime = true;
-    if(col_in == -1){
-        itern = 0;
-        isfirsttime = true;
-        return MatrixXd::Zero(1,1);
-    }
-    int i,j=0;
-    int col;
-    double temp;
-    VectorXd x(m);
-    VectorXd y(m);
-    MatrixXd A_B(m,m);
-    SparseMatrix<double> A_B_sparse(m,m);
-    static SparseLU<SparseMatrix<double>, COLAMDOrdering<int> >   solver;
+    int i = 0, j = 0;
+    int col = 0;
+    double temp = 0.0;
+    Eigen::VectorXd x(m);
+    Eigen::VectorXd y(m);
+    Eigen::MatrixXd A_B(m,m);
+    Eigen::SparseMatrix<double> A_B_sparse(m,m);
     y = A.col(col_in);
-    if(itern>=m/2) isfirsttime=false;
-    if((itern>=m/2||itern==0)&&isfirsttime==false){
-        for (i=0;i<m;i++)
+    if(dxb_itern_ >= m/2) dxb_first_ = false;
+    if((dxb_itern_ >= m/2 || dxb_itern_ == 0) && dxb_first_ == false){
+        for (i = 0; i < m; i++)
         {
-            A_B.col(i)=A.col(B[i]);
+            A_B.col(i) = A.col(B[i]);
         }
         A_B_sparse = A_B.sparseView();
-        solver.analyzePattern(A_B_sparse);
-        solver.factorize(A_B_sparse);
-        itern=0;
-        
+        dxb_solver_.analyzePattern(A_B_sparse);
+        dxb_solver_.factorize(A_B_sparse);
+        dxb_itern_ = 0;
     }
-    if(isfirsttime==true){
+    if(dxb_first_ == true){
         x = y;
-    }else x = solver.solve(y);
-    
-    if (itern <= 0) {
+    }else x = dxb_solver_.solve(y);
+
+    if (dxb_itern_ <= 0) {
         Eta.setZero();
-        Eta.col(itern)=x;
-        itern++;
+        Eta.col(dxb_itern_) = x;
+        dxb_itern_++;
         return x;
     }
-    for (j=0; j<itern; j++) {
+    for (j = 0; j < dxb_itern_; j++) {
         col = E_d(j);
-        
+
         temp = x(col)/Eta(col,j);
         if (temp != 0.0) {
-            for (i=0;i<m;i++) {
+            for (i = 0; i < m; i++) {
                 x(i) -= Eta(i,j) * temp;
             }
             x(col) = temp;
         }
     }
     //save the updated data
-    Eta.col(itern)=x;
-    itern++;
+    Eta.col(dxb_itern_) = x;
+    dxb_itern_++;
     return x;
 }
 
-VectorXd PSM::lusolve_update_dzn(int col_out){
-    /*input j returnA_N_t*A_B^(-1)^T*ej*/
-    static int itern = 0;
-    static bool isfirsttime = true;
-    if(col_out == -1){
-        itern = 0;
-        isfirsttime = true;
-        return MatrixXd::Zero(1,1);
-    }
-    int i,j = 0,k;
-    int col;
-    double temp;
-    VectorXd x(n);
-    MatrixXd A_B(m,m);
-    SparseMatrix<double> A_B_sparse(m,m);
-    SparseMatrix<double> A_B_sparse_t(m,m);
-    SparseVector<double> y(m);
-    static SparseLU<SparseMatrix<double>, COLAMDOrdering<int> >   solver;
-    y.insert(inner_dict[col_out])=-1;
+Eigen::VectorXd PSM::lusolve_update_dzn(int col_out){
+    /*input j return A_N_t*A_B^(-1)^T*ej*/
+    int i = 0, j = 0, k = 0;
+    int col = 0;
+    double temp = 0.0;
+    Eigen::VectorXd x(n);
+    Eigen::MatrixXd A_B(m,m);
+    Eigen::SparseMatrix<double> A_B_sparse(m,m);
+    Eigen::SparseMatrix<double> A_B_sparse_t(m,m);
+    Eigen::SparseVector<double> y(m);
+    y.insert(inner_dict[col_out]) = -1;
     x.setZero();
-    if(itern>=m/2) isfirsttime=false;
-    if((itern>=m/2||itern==0)&&isfirsttime==false){
-        for (i=0;i<m;i++)
+    if(dzn_itern_ >= m/2) dzn_first_ = false;
+    if((dzn_itern_ >= m/2 || dzn_itern_ == 0) && dzn_first_ == false){
+        for (i = 0; i < m; i++)
         {
-            A_B.col(i)=A.col(B[i]);
+            A_B.col(i) = A.col(B[i]);
         }
         A_B_sparse = A_B.sparseView();
         A_B_sparse_t = A_B_sparse.transpose();
-        solver.analyzePattern(A_B_sparse_t);
-        solver.factorize(A_B_sparse_t);
-        itern=0;
+        dzn_solver_.analyzePattern(A_B_sparse_t);
+        dzn_solver_.factorize(A_B_sparse_t);
+        dzn_itern_ = 0;
     }
-    if (itern == 0){
-        if(isfirsttime==true){
+    if (dzn_itern_ == 0){
+        if(dzn_first_ == true){
             x = y;
-        }else x = solver.solve(y);
-        itern++;
+        }else x = dzn_solver_.solve(y);
+        dzn_itern_++;
         E_d.setZero();
         E_d(0) = inner_dict[col_out];
-        x = A_N_t*x;
+        x = A_N_t * x;
         return x;
     }
-    for (j=itern-1; j>=0; j--) {
-        temp=0;
+    for (j = dzn_itern_ - 1; j >= 0; j--) {
+        temp = 0;
         col = E_d(j);
-        for(SparseVector<double>::InnerIterator it(y); it; ++it){
-            if(it.index()>=0){
-                if(it.index()!=col){
-                    k=it.index();
-                    temp -= Eta(k,j)*it.value();
+        for(Eigen::SparseVector<double>::InnerIterator it(y); it; ++it){
+            if(it.index() >= 0){
+                if(it.index() != col){
+                    k = it.index();
+                    temp -= Eta(k,j) * it.value();
                 } else temp += it.value();
             }
         }
-        y.coeffRef(col) = temp/Eta(col,j);
+        y.coeffRef(col) = temp / Eta(col,j);
     }
-    if(isfirsttime==true){
+    if(dzn_first_ == true){
         x = y;
-    }else x = solver.solve(y);
-    E_d(itern)=inner_dict[col_out];
-    itern++;
-    x = A_N_t*x.sparseView();
+    }else x = dzn_solver_.solve(y);
+    E_d(dzn_itern_) = inner_dict[col_out];
+    dzn_itern_++;
+    x = A_N_t * x.sparseView();
     return x;
 }
 
@@ -191,29 +175,30 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
     int T = 0;
     int col_in = -1;
     int col_out = -1;
-    VectorXd xB_star(m);
-    VectorXd xB_bar(m);
-    VectorXd dxB(m);
-    VectorXd zN_star(n);
-    VectorXd zN_bar(n);
-    VectorXd dzN(n);
-	VectorXd xB(m);
-    VectorXd x_output(N);
-    double t;
-    double t_bar;
-    double s;
-    double s_bar;
-    double lambda_star;
-    double y_output;
+    Eigen::VectorXd xB_star(m);
+    Eigen::VectorXd xB_bar(m);
+    Eigen::VectorXd dxB(m);
+    Eigen::VectorXd zN_star(n);
+    Eigen::VectorXd zN_bar(n);
+    Eigen::VectorXd dzN(n);
+	Eigen::VectorXd xB(m);
+    Eigen::VectorXd x_output(N);
+    double t = 0.0;
+    double t_bar = 0.0;
+    double s = 0.0;
+    double s_bar = 0.0;
+    double lambda_star = 0.0;
+    double y_output = 0.0;
     PSMresult result(max_it, N);
-    
+
     /*initialize*/
     init();
+    reset_lu_state();
 	xB_star = b;
 	xB_bar = b_bar;
 	zN_star = A_N_t * c.tail(m) - c.head(n);
 	zN_bar = A_N_t * c_bar.tail(m) - c_bar.head(n);
-	
+
 	/*set initial Basic*/
 	if(zN_bar.isZero()){
 		flag = PRIMAL;
@@ -224,7 +209,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 	else{
 		return result;
 	}
-	
+
 	/*Simplex Method*/
 	while(1){
 		/*break when primal(dual) optimal if flag is PRIMAL(DUAL)*/
@@ -243,7 +228,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 				break;
 			}
 			dxB = lusolve_update_dxb(col_in);
-			
+
 			min = DBL_MAX;
 			for (int i = 0; i < m; ++i)
 			{
@@ -289,30 +274,30 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 			}
 			dxB = lusolve_update_dxb(col_in);
 		}
-		
+
 		/*Compute the dual and primal step lengths \
 		 for both variables and perturbations*/
 		t = xB_star[inner_dict[col_out]] / dxB[inner_dict[col_out]];
 		t_bar = xB_bar[inner_dict[col_out]] / dxB[inner_dict[col_out]];
 		s = zN_star[inner_dict[col_in]] / dzN[inner_dict[col_in]];
 		s_bar = zN_bar[inner_dict[col_in]] / dzN[inner_dict[col_in]];
-		
+
 		/*Update the primal and dual solutions*/
 		xB_star = xB_star - t * dxB;
 		xB_bar = xB_bar - t_bar * dxB;
 		zN_star = zN_star - s * dzN;
 		zN_bar = zN_bar - s_bar * dzN;
-		
+
 		zN_star(inner_dict[col_in]) = s;
 		zN_bar(inner_dict[col_in]) = s_bar;
 		xB_star(inner_dict[col_out]) = t;
 		xB_bar(inner_dict[col_out]) = t_bar;
-		
+
 		/*Update the basic and nonbasic index sets*/
-		A_N_t.row(inner_dict[col_in])=A.col(col_out);
+		A_N_t.row(inner_dict[col_in]) = A.col(col_out);
 		B[inner_dict[col_out]] = col_in;
 		NB[inner_dict[col_in]] = col_out;
-		swap(inner_dict[col_in], inner_dict[col_out]);
+		std::swap(inner_dict[col_in], inner_dict[col_out]);
 	}
 	while(T < max_it){
 		T++;
@@ -334,7 +319,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 			if(col_in != -1){
 				/*Compute primal step direction*/
 				dxB = lusolve_update_dxb(col_in);
-				
+
 				/*Select leaving variable*/
 				double min = DBL_MAX;
 				for (int i = 0; i < m; ++i)
@@ -369,7 +354,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 			if(col_out != -1){
 				/*Compute dual step direction*/
 				dzN = lusolve_update_dzn(col_out);
-				
+
 				/*Select entering variable*/
 				double min = DBL_MAX;
 				for (int i = 0; i < n; ++i)
@@ -389,7 +374,7 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 				}
 			}
 		}
-		
+
 		/*Update the output result*/
 		xB = xB_star + lambda_star * xB_bar;
 		x_output.setZero();
@@ -398,40 +383,39 @@ PSMresult PSM::solve(int max_it, double lambda_threshold){
 		}
 		y_output = x_output.transpose()*(c + lambda_star * c_bar);
 		result.update(lambda_star , x_output, y_output);
-		
+
 		/*check threshold*/
 		if(lambda_star <= lambda_threshold || col_in == -1 || col_out == -1){
 			break;
 		}
-		
+
 		/*Compute the dual and primal step lengths \
 		 for both variables and perturbations*/
 		t = xB_star[inner_dict[col_out]] / dxB[inner_dict[col_out]];
 		t_bar = xB_bar[inner_dict[col_out]] / dxB[inner_dict[col_out]];
 		s = zN_star[inner_dict[col_in]] / dzN[inner_dict[col_in]];
 		s_bar = zN_bar[inner_dict[col_in]] / dzN[inner_dict[col_in]];
-		
+
 		/*Update the primal and dual solutions*/
 		xB_star = xB_star - t * dxB;
 		xB_bar = xB_bar - t_bar * dxB;
 		zN_star = zN_star - s * dzN;
 		zN_bar = zN_bar - s_bar * dzN;
-		
+
 		zN_star(inner_dict[col_in]) = s;
 		zN_bar(inner_dict[col_in]) = s_bar;
 		xB_star(inner_dict[col_out]) = t;
 		xB_bar(inner_dict[col_out]) = t_bar;
-		
+
 		/*Update the basic and nonbasic index sets*/
-		A_N_t.row(inner_dict[col_in])=A.col(col_out);
+		A_N_t.row(inner_dict[col_in]) = A.col(col_out);
 		B[inner_dict[col_out]] = col_in;
 		NB[inner_dict[col_in]] = col_out;
-		swap(inner_dict[col_in], inner_dict[col_out]);
+		std::swap(inner_dict[col_in], inner_dict[col_out]);
 	}
-	
+
     /*reset*/
-    lusolve_update_dxb(-1);
-    lusolve_update_dzn(-1);
-    
+    reset_lu_state();
+
     return result;
 }

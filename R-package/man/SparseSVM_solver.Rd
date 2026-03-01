@@ -2,51 +2,51 @@
 % Please edit documentation in R/SparseSVM_solver.R
 \name{SparseSVM_solver}
 \alias{SparseSVM_solver}
-\title{Solve given Sparse SVM problem in parametric simplex method}
+\title{Solve a Sparse SVM Problem Using the Parametric Simplex Method}
 \usage{
 SparseSVM_solver(X, y, max_it = 50, lambda_threshold = 0.01)
 }
 \arguments{
-\item{X}{\code{x} is an \code{n} by \code{d} data matrix}
+\item{X}{An \code{n} by \code{d} data matrix.}
 
-\item{y}{\code{y} is a length \code{n} response vector}
+\item{y}{A length \code{n} response vector with values in \{-1, 1\}.}
 
-\item{max_it}{This is the number of the maximum path length one would like to achieve. The default length is \code{50}.}
+\item{max_it}{Maximum number of iterations for the solution path. The default is \code{50}.}
 
-\item{lambda_threshold}{The parametric simplex method will stop when the calculated parameter is smaller than lambda. The default value is \code{0.01}.}
+\item{lambda_threshold}{The algorithm stops when the regularization parameter falls below this threshold. The default value is \code{0.01}.}
 }
 \value{
 An object with S3 class \code{"primal"} is returned:
 \item{data}{
-  The \code{n} by \code{d} data matrix from the input
+  The \code{n} by \code{d} data matrix from the input.
 }
 \item{response}{
-  The length \code{n} response vector from the input
+  The length \code{n} response vector from the input.
 }
 \item{beta}{
-  A matrix of regression estimates whose columns correspond to regularization parameters for parametric simplex method.
+  A matrix of coefficient estimates whose columns correspond to regularization parameters along the solution path.
 }
 \item{beta0}{
-  A vector of regression estimates whose index correspond to regularization parameters for parametric simplex method.
+  A vector of intercept estimates corresponding to regularization parameters along the solution path.
 }
 \item{df}{
-  The degree of freecom (number of nonzero coefficients) along the solution path.
+  The degrees of freedom (number of nonzero coefficients) along the solution path.
 }
 \item{value}{
-  The sequence of optimal value of the object function corresponded to the sequence of lambda.
+  The sequence of optimal objective function values corresponding to each \code{lambda}.
 }
 \item{iterN}{
-  The number of iteration in the program.
+  The number of iterations performed.
 }
 \item{lambda}{
-  The sequence of regularization parameters \code{lambda} obtained in the program.
+  The sequence of regularization parameters obtained along the solution path.
 }
 \item{type}{
-  The type of the problem, such as \code{Dantzig} and \code{SparseSVM}.
+  The type of the problem, e.g., \code{"Dantzig"} or \code{"SparseSVM"}.
 }
 }
 \description{
-Solve given Sparse SVM problem in parametric simplex method
+Solve a Sparse SVM Problem Using the Parametric Simplex Method
 }
 \seealso{
 \code{\link{primal-package}}

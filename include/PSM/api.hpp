@@ -1,10 +1,7 @@
 #ifndef API_HPP
 #define API_HPP
 
-#include <eigen/Eigen/Dense>
-
 #include "PSM/PSM.hpp"
-
 
 extern "C" void QuantileRegression_api
 (	int *_n,

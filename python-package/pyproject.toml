@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyprimal"
+dynamic = ["version"]
+description = "Parametric Simplex Method for Sparse Learning"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+authors = [
+    {name = "Zichong Li"},
+    {name = "Qianli Shen"},
+    {name = "Tuo Zhao", email = "tourzhao@gatech.edu"},
+]
+maintainers = [
+    {name = "Tuo Zhao", email = "tourzhao@gatech.edu"},
+]
+keywords = [
+    "sparse-learning",
+    "dantzig-selector",
+    "svm",
+    "compressed-sensing",
+    "quantile-regression",
+    "parametric-simplex",
+]
+dependencies = ["numpy>=1.23"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: C++",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+
+[project.optional-dependencies]
+viz = ["matplotlib>=3.5"]
+test = ["pytest>=7.0"]
+docs = ["mkdocs-material>=9.0"]
+
+[project.urls]
+Homepage = "https://github.com/Gatech-Flash/primal"
+Repository = "https://github.com/Gatech-Flash/primal"
+"Bug Tracker" = "https://github.com/Gatech-Flash/primal/issues"
+
+[tool.setuptools.dynamic]
+version = {file = "pyprimal/VERSION"}
+
+[tool.setuptools.packages.find]
+include = ["pyprimal*"]
+
+[tool.setuptools.package-data]
+pyprimal = ["VERSION", "lib/*"]

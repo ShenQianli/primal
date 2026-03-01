@@ -2,19 +2,19 @@
 % Please edit documentation in R/plot.primal.R
 \name{plot.primal}
 \alias{plot.primal}
-\title{Plot function for S3 class "primal"}
+\title{Plot a "primal" Object}
 \usage{
-\method{plot}{primal}(str, n = NULL, ...)
+\method{plot}{primal}(x, n = NULL, ...)
 }
 \arguments{
-\item{str}{An object with S3 class \code{"primal"}}
+\item{x}{An object with S3 class \code{"primal"}.}
 
-\item{n}{If \code{n = NULL}, three graph will be shown together. If \code{n} is a number, then the corresponding graph will be shown.}
+\item{n}{If \code{NULL}, all three plots are shown together. If \code{n} is a number (1, 2, or 3), only the corresponding plot is shown.}
 
-\item{\dots}{System reserved (No specific usage)}
+\item{\dots}{Additional arguments (currently unused).}
 }
 \description{
-Plot regularization path and parameter obtained from the algorithm.
+Plot the regularization path and parameters obtained from the parametric simplex method.
 }
 \seealso{
 \code{\link{Dantzig_solver}}, \code{\link{SparseSVM_solver}}

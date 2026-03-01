@@ -1,0 +1,94 @@
+name: Build & Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-13, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install cibuildwheel
+        run: pip install cibuildwheel==2.21.3
+
+      - name: Build wheels
+        run: python -m cibuildwheel --output-dir wheelhouse python-package
+        env:
+          # Build for CPython 3.9–3.13
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
+          # Skip musllinux and Windows (not yet supported)
+          CIBW_SKIP: "*-musllinux_* *-win*"
+          # Compile the C++ shared library before building the wheel
+          CIBW_BEFORE_BUILD: >
+            make -C {project}/.. clean &&
+            make -C {project}/.. dylib &&
+            mkdir -p {project}/pyprimal/lib &&
+            cp {project}/../lib/libpsm.* {project}/pyprimal/lib/
+          # Verify the wheel works
+          CIBW_TEST_COMMAND: >
+            python -c "import pyprimal; pyprimal.test()"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+
+  build-sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build sdist
+        run: |
+          pip install build
+          # Compile the library first so it's included in the sdist
+          make clean && make dylib
+          mkdir -p python-package/pyprimal/lib
+          cp lib/libpsm.* python-package/pyprimal/lib/
+          cd python-package
+          python -m build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: python-package/dist/*.tar.gz
+
+  publish:
+    name: Publish to PyPI
+    needs: [build-wheels, build-sdist]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      id-token: write  # for trusted publishing
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/

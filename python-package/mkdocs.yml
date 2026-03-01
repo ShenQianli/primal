@@ -1,0 +1,24 @@
+site_name: pyprimal
+site_description: Parametric Simplex Method for Sparse Learning
+repo_url: https://github.com/Gatech-Flash/primal
+repo_name: Gatech-Flash/primal
+docs_dir: docs
+theme:
+  name: material
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Quick Start: quickstart.md
+  - API: api.md
+  - Function Manual:
+      - Index: man/index.md
+      - dantzig_solver: man/dantzig_solver.md
+      - sparse_svm_solver: man/sparse_svm_solver.md
+      - compressed_sensing_solver: man/compressed_sensing_solver.md
+      - quantile_regression_solver: man/quantile_regression_solver.md
+      - PrimalResult: man/PrimalResult.md
+      - PrimalResult.summary: man/summary.md
+      - PrimalResult.coef: man/coef.md
+      - PrimalResult.plot: man/plot.md
+      - test: man/test.md
+  - Citation: citation.md

@@ -27,7 +27,7 @@ endif
 endif
 
 export LDFLAGS = 
-export CFLAGS = -std=c++11 -Wall -Wno-unknown-pragmas -I ./include 
+export CFLAGS = -std=c++14 -Wall -Wno-unknown-pragmas -I ./include -I ./include/eigen
 
 ifneq ($(UNAME), Windows)
 	CFLAGS += -fPIC
@@ -75,22 +75,24 @@ Pyinstall: ${PSM_DYLIB}
 	rm -rf python-package/pyprimal/lib/
 	mkdir python-package/pyprimal/lib/
 	cp -rf ${PSM_DYLIB} python-package/pyprimal/lib/
-	cd python-package; python setup.py install; cd ..
+	cd python-package && pip install -e ".[viz,test]"
 
 # Script to make a clean installable R package.
 Rpack:
 	$(MAKE) clean
-	rm -rf primal PRIMAL_1.0.0.tar.gz
+	rm -rf primal PRIMAL_1.1.0.tar.gz
 	cp -r R-package primal
 	rm -rf primal/src/*.o primal/src/*.so primal/src/*.dll
 	rm -rf primal/src/*/*.o
 	rm -rf primal/demo/*.model primal/demo/*.buffer primal/demo/*.txt
 	rm -rf primal/demo/runall.R
 	cp -r src primal/src/src
-	cp -r include primal/src/include
-	cat R-package/src/Makevars.in|sed '2s/.*/PKGROOT=./' | sed '3s/.*/ENABLE_STD_THREAD=0/' > primal/src/Makevars.in
-	cp primal/src/Makevars.in primal/src/Makevars.win
-	cp primal/src/Makevars.in primal/src/Makevars
+	mkdir -p primal/src/include
+	cp -r include/PSM primal/src/include/PSM
+	cat R-package/src/Makevars.in|sed '2s/.*/PKGROOT=./' | sed '3s/.*/ENABLE_STD_THREAD=0/' > primal/src/Makevars
+	cp primal/src/Makevars primal/src/Makevars.win
+	rm -f primal/src/Makevars.in
+	rm -f primal/configure primal/cleanup
 
 Rbuild:
 	$(MAKE) Rpack
@@ -99,11 +101,11 @@ Rbuild:
 
 Rcheck:
 	$(MAKE) Rbuild
-	R CMD check  PRIMAL_1.0.0.tar.gz
+	R CMD check  PRIMAL_1.1.0.tar.gz
 
 Rinstall:
 	$(MAKE) Rbuild
-	R CMD INSTALL  PRIMAL_1.0.0.tar.gz
+	R CMD INSTALL  PRIMAL_1.1.0.tar.gz
 
 -include build/*.d
 -include build/*/*.d

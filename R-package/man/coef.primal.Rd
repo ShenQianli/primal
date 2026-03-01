@@ -2,17 +2,19 @@
 % Please edit documentation in R/coef.primal.R
 \name{coef.primal}
 \alias{coef.primal}
-\title{Coef function for S3 class "primal"}
+\title{Extract Coefficients from a "primal" Object}
 \usage{
-\method{coef}{primal}(str, n = NULL)
+\method{coef}{primal}(object, n = NULL, ...)
 }
 \arguments{
-\item{str}{An object with S3 class \code{"primal"}.}
+\item{object}{An object with S3 class \code{"primal"}.}
 
-\item{n}{The index of the wanted parameter.}
+\item{n}{The index of the regularization parameter along the solution path. If \code{NULL}, the last iteration is used.}
+
+\item{\dots}{Additional arguments (currently unused).}
 }
 \description{
-Print the estimated solution correspond to a specific parameter.
+Extract and display the estimated coefficients corresponding to a specific regularization parameter.
 }
 \seealso{
 \code{\link{Dantzig_solver}}, \code{\link{SparseSVM_solver}}

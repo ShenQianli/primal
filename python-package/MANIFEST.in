@@ -1,12 +1,18 @@
-include *.md
-recursive-include lib *
-recursive-include pyprimal *
-recursive-include pyprimal/lib *
-#exclude pre-compiled .o and .a file for less confusions
-#make sure .a files are all removed for forcing compiling
-#include the pre-compiled .so is needed as a placeholder
-#since it will be copy after compiling on the fly
+include LICENSE
+include README.md
+include pyproject.toml
+
+recursive-include pyprimal *.py
+include pyprimal/VERSION
+recursive-include pyprimal/lib *.dylib *.so *.dll
+
+recursive-include docs *.md
+recursive-include examples *.py
+recursive-include tests *.py
+
+global-exclude __pycache__
+global-exclude *.py[cod]
 global-exclude *.o
 global-exclude *.a
-global-exclude *.pyo
-global-exclude *.pyc
+global-exclude .DS_Store
+global-exclude *.egg-info

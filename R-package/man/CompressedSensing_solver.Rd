@@ -2,24 +2,24 @@
 % Please edit documentation in R/CompressedSensing_solver.R
 \name{CompressedSensing_solver}
 \alias{CompressedSensing_solver}
-\title{Solve given compressed sensing problem in parametric simplex method}
+\title{Solve a Compressed Sensing Problem Using the Parametric Simplex Method}
 \usage{
 CompressedSensing_solver(X, y, max_it = 50, lambda_threshold = 0.01)
 }
 \arguments{
-\item{X}{\code{x} is an \code{n} by \code{d} data matrix}
+\item{X}{An \code{n} by \code{d} data matrix.}
 
-\item{y}{\code{y} is a length \code{n} response vector}
+\item{y}{A length \code{n} response vector.}
 
-\item{max_it}{This is the number of the maximum path length one would like to achieve. The default length is \code{50}.}
+\item{max_it}{Maximum number of iterations for the solution path. The default is \code{50}.}
 
-\item{lambda_threshold}{The parametric simplex method will stop when the calculated parameter is smaller than lambda. The default value is \code{0.01}.}
+\item{lambda_threshold}{The algorithm stops when the regularization parameter falls below this threshold. The default value is \code{0.01}.}
 }
 \description{
-Solve given compressed sensing problem in parametric simplex method
+Solve a Compressed Sensing Problem Using the Parametric Simplex Method
 }
 \note{
-The returned value is similar with \code{Dantzig_solver()}
+The returned value is similar to that of \code{\link{Dantzig_solver}}.
 }
 \seealso{
 \code{\link{primal-package}}, \code{\link{Dantzig_solver}}

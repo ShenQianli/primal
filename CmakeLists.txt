@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.14)
 
-project(psm)
+project(psm VERSION 1.1.0)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(PROJECT_ROOT_PATH "${CMAKE_SOURCE_DIR}/")
 
@@ -9,6 +12,9 @@ set(EXECUTABLE_OUTPUT_PATH "${PROJECT_ROOT_PATH}/bin/")
 set(LIBRARY_OUTPUT_PATH "${PROJECT_ROOT_PATH}/lib/")
 
 include_directories(${PROJECT_ROOT_PATH}/include/)
+include_directories(${PROJECT_ROOT_PATH}/include/eigen/)
+
+add_compile_options(-Wall -Wextra -Wno-unknown-pragmas)
 
 file(GLOB SOURCE "${PROJECT_ROOT_PATH}/src/*.cpp")
 

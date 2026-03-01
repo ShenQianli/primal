@@ -12,8 +12,22 @@ __pycache__/
 *.exe
 *.o
 *.so
+*.a
+*.dylib
 
-*.so
+# Python packaging #
+####################
+*.egg-info/
+dist/
+build/
+*.whl
+.eggs/
+site/
+
+# Virtual environments #
+########################
+.venv/
+venv/
 
 # Packages #
 ############
@@ -27,4 +41,3 @@ __pycache__/
 *.rar
 *.tar
 *.zip
-

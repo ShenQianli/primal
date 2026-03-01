@@ -1,70 +1,90 @@
-# pylint: disable=invalid-name, exec-used
-"""Setup psm package."""
-from __future__ import absolute_import
-import sys
-import os
+"""Build helper: compile libpsm shared library before packaging."""
+
+import platform
 import shutil
-from setuptools import setup, find_packages
-# import subprocess
-sys.path.insert(0, '.')
+import subprocess
+from pathlib import Path
 
-CURRENT_DIR = os.path.dirname(__file__)
+from setuptools import setup
+from setuptools.command.build_py import build_py
 
-#try to copy the complied lib files
-libdir_candidate = [os.path.join(CURRENT_DIR, '../lib/')]
+try:
+    from wheel.bdist_wheel import bdist_wheel
+except ImportError:
+    bdist_wheel = None
 
-if sys.platform == 'win32':
-    libcand_path = [os.path.join(p, 'psm.dll') for p in libdir_candidate]
-    libcand_path = libcand_path + [os.path.join(p, 'libpsm.so') for p in libdir_candidate]
-elif sys.platform.startswith('linux'):
-    libcand_path = [os.path.join(p, 'libpsm.so') for p in libdir_candidate]
-elif sys.platform == 'darwin':
-    libcand_path = [os.path.join(p, 'libpsm.so') for p in libdir_candidate]
-    libcand_path = libcand_path + [os.path.join(p, 'libpsm.dylib') for p in libdir_candidate]
-
-lib_path = [p for p in libcand_path if os.path.exists(p) and os.path.isfile(p)]
-if not os.path.exists('./pyprimal/lib/'):
-	os.mkdir('./pyprimal/lib/')
-for lib_file in lib_path:
-    shutil.copy(lib_file,os.path.join(CURRENT_DIR, './pyprimal/lib/'))
+# Paths relative to this file (python-package/)
+_HERE = Path(__file__).resolve().parent
+_REPO_ROOT = _HERE.parent  # primal-master/
+_LIB_DIR = _HERE / "pyprimal" / "lib"
 
 
-# We can not import `psm.libpath` in setup.py directly, since it will automatically import other package
-# and case conflict to `install_requires`
-libpath_py = os.path.join(CURRENT_DIR, 'pyprimal/libpath.py')
-libpath = {'__file__': libpath_py}
-exec(compile(open(libpath_py, "rb").read(), libpath_py, 'exec'), libpath, libpath)
-LIB_PATH = [os.path.relpath(libfile, CURRENT_DIR) for libfile in libpath['find_lib_path']()]
-if not LIB_PATH:
-    raise RuntimeError("libpsm does not exists")
-else:
-    print("libpsm already exists: %s" % LIB_PATH)
+def _lib_name():
+    """Return the platform-specific shared library name."""
+    system = platform.system()
+    if system == "Darwin":
+        return "libpsm.dylib"
+    elif system == "Windows":
+        return "libpsm.dll"
+    return "libpsm.so"
 
 
-VERSION_PATH = os.path.join(CURRENT_DIR, 'pyprimal/VERSION')
+class BuildPyWithLib(build_py):
+    """Custom build_py that compiles the C++ shared library first."""
 
-setup(name='pyprimal',
-	  author='Qianli Shen',
-	  author_email='shenqianli@pku.edu.cn',
-      version=open(VERSION_PATH).read().strip(),
-      description='PYthon package PaRametric sImplex Method for spArse Learning',
-      long_description=open(os.path.join(CURRENT_DIR, 'README.md')).read(),
-      long_description_content_type="text/markdown",
-      install_requires=[
-          'numpy',
-      ],
-      maintainer='Qianli Shen',
-      maintainer_email='shenqianli@pku.edu.cn',
-      zip_safe=False,
-      packages=find_packages(),
-	  include_package_data=True,
-      license='GPL-3.0',
-      classifiers=['Development Status :: 3 - Alpha',
-                   'Intended Audience :: Developers',
-                   'Intended Audience :: Science/Research',
-                   'Topic :: Scientific/Engineering :: Artificial Intelligence',
-                   'Topic :: Scientific/Engineering :: Mathematics',
-                   'Programming Language :: Python :: 3 :: Only',
-                   'License :: OSI Approved :: GNU General Public License v3 (GPLv3)'],
-      url='https://github.com/ShenQianli/primal',
-      )
+    def run(self):
+        self._ensure_lib()
+        super().run()
+
+    def _ensure_lib(self):
+        lib_name = _lib_name()
+        target = _LIB_DIR / lib_name
+
+        # Already have a pre-built library — nothing to do
+        if target.is_file():
+            return
+
+        makefile = _REPO_ROOT / "Makefile"
+        if not makefile.is_file():
+            raise RuntimeError(
+                f"Cannot find pre-built {lib_name} in pyprimal/lib/ "
+                f"and no Makefile found at {_REPO_ROOT} for compilation. "
+                "Please build from source — see README for instructions."
+            )
+
+        # Compile the shared library
+        subprocess.check_call(["make", "dylib"], cwd=str(_REPO_ROOT))
+
+        # Copy to pyprimal/lib/
+        built = _REPO_ROOT / "lib" / lib_name
+        if not built.is_file():
+            raise RuntimeError(
+                f"make dylib succeeded but {built} was not created."
+            )
+        _LIB_DIR.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(str(built), str(target))
+
+
+# Tag the wheel as platform-specific (it contains a compiled .so/.dylib)
+cmdclass = {"build_py": BuildPyWithLib}
+
+if bdist_wheel is not None:
+
+    class PlatformWheel(bdist_wheel):
+        """Mark the wheel as platform-specific but Python-version-agnostic.
+
+        Since we use ctypes (not a compiled Python extension), the wheel
+        works with any CPython/PyPy 3.x but is tied to the OS/arch.
+        """
+
+        def finalize_options(self):
+            super().finalize_options()
+            self.root_is_pure = False
+
+        def get_tag(self):
+            _, _, plat = super().get_tag()
+            return "py3", "none", plat
+
+    cmdclass["bdist_wheel"] = PlatformWheel
+
+setup(cmdclass=cmdclass)

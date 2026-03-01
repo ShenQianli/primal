@@ -2,17 +2,17 @@
 % Please edit documentation in R/print.primal.R
 \name{print.primal}
 \alias{print.primal}
-\title{Print function for S3 class "primal"}
+\title{Print a "primal" Object}
 \usage{
-\method{print}{primal}(str, ...)
+\method{print}{primal}(x, ...)
 }
 \arguments{
-\item{str}{An object with S3 class \code{"primal"}.}
+\item{x}{An object with S3 class \code{"primal"}.}
 
-\item{\dots}{System reserved (No specific usage)}
+\item{\dots}{Additional arguments (currently unused).}
 }
 \description{
-Print the information about the model usage, the parameter path, degree of freedom of the solution path.
+Print summary information including the model type, regularization parameter path, and degrees of freedom along the solution path.
 }
 \seealso{
 \code{\link{Dantzig_solver}}, \code{\link{SparseSVM_solver}}
