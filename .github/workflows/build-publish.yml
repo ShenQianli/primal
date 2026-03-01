@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-13, macos-latest]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +24,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      # Copy C++ source into python-package/ so cibuildwheel can access it
+      # (cibuildwheel copies only the package dir to a temp location)
+      - name: Prepare C++ source
+        run: |
+          cp -r src python-package/src
+          cp -r include python-package/include
+          cp Makefile python-package/Makefile
 
       - name: Install cibuildwheel
         run: pip install cibuildwheel==2.21.3
@@ -35,12 +43,12 @@ jobs:
           CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
           # Skip musllinux and Windows (not yet supported)
           CIBW_SKIP: "*-musllinux_* *-win*"
-          # Compile the C++ shared library before building the wheel
+          # Compile the C++ shared library inside the build environment
           CIBW_BEFORE_BUILD: >
-            make -C {project}/.. clean &&
-            make -C {project}/.. dylib &&
+            make -C {project} clean &&
+            make -C {project} dylib &&
             mkdir -p {project}/pyprimal/lib &&
-            cp {project}/../lib/libpsm.* {project}/pyprimal/lib/
+            cp {project}/lib/libpsm.* {project}/pyprimal/lib/
           # Verify the wheel works
           CIBW_TEST_COMMAND: >
             python -c "import pyprimal; pyprimal.test()"
