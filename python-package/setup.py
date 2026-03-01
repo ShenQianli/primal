@@ -5,7 +5,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from setuptools import setup
+from setuptools import setup, Distribution
 from setuptools.command.build_py import build_py
 
 try:
@@ -87,4 +87,11 @@ if bdist_wheel is not None:
 
     cmdclass["bdist_wheel"] = PlatformWheel
 
-setup(cmdclass=cmdclass)
+class BinaryDistribution(Distribution):
+    """Force platlib installation since we ship a compiled shared library."""
+
+    def has_ext_modules(self):
+        return True
+
+
+setup(cmdclass=cmdclass, distclass=BinaryDistribution)
